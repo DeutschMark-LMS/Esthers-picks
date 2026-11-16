@@ -113,6 +113,9 @@
     const val = parseFloat(budgetInput.value);
     if (!isNaN(val) && val > 0) {
       currentBudget = val;
+      if (window.RukkysAnalytics) {
+        window.RukkysAnalytics.trackBudgetSearch(val);
+      }
       window.AppModals.showToast(`Showing meals under ${window.MealCard.formatNaira(val)}`, '🎯');
     } else {
       currentBudget = null;
@@ -160,6 +163,15 @@
     window.SpecialsBoard.init(allSpecials, (specialDeal) => {
       budgetInput.value = specialDeal.price;
       currentBudget = specialDeal.price;
+      if (window.RukkysAnalytics) {
+        window.RukkysAnalytics.trackEvent('special_deal_click', {
+          title: specialDeal.title,
+          price: specialDeal.price,
+          spotName: specialDeal.vendor,
+          label: `Viewed deal: ${specialDeal.title}`
+        });
+        window.RukkysAnalytics.trackBudgetSearch(specialDeal.price);
+      }
       renderCombos();
       window.AppModals.showToast(`Budget set to ${window.MealCard.formatNaira(specialDeal.price)} for ${specialDeal.vendor}!`, '🎯');
       budgetInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -179,6 +191,9 @@
         const amt = btn.getAttribute('data-amt');
         budgetInput.value = amt;
         currentBudget = parseFloat(amt);
+        if (window.RukkysAnalytics) {
+          window.RukkysAnalytics.trackBudgetSearch(parseFloat(amt));
+        }
 
         // Highlight active preset button
         document.querySelectorAll('.preset-btn').forEach(b => {
@@ -238,6 +253,15 @@
         budgetInput.value = randomPick.price;
         currentBudget = randomPick.price;
         currentFilter = 'all';
+
+        if (window.RukkysAnalytics && randomPick) {
+          window.RukkysAnalytics.trackEvent('surprise_pick', {
+            title: randomPick.title,
+            price: randomPick.price,
+            label: `Surprise pick: ${randomPick.title}`
+          });
+          window.RukkysAnalytics.trackBudgetSearch(randomPick.price);
+        }
 
         // Reset filter pills UI
         document.querySelectorAll('.filter-pill').forEach(b => {

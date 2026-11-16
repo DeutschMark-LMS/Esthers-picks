@@ -476,13 +476,17 @@ function renderCombosTable() {
 
       const itemsSummary = (combo.items || []).map(it => `${it.name} (₦${it.price})`).join(' + ');
 
+      const spotCellHtml = (combo.vendors && combo.vendors.length > 1)
+        ? `<div class="flex flex-wrap gap-1">${combo.vendors.map(v => `<span class="inline-block px-1.5 py-0.5 bg-stone-100 text-stone-800 rounded text-[10px] font-bold border border-stone-200">📍 ${v.spotName}</span>`).join('')}</div>`
+        : `<span class="text-stone-600 font-semibold text-xs">📍 ${combo.spotName || 'Campus Spot'}</span>`;
+
       return `
         <tr class="hover:bg-stone-50/80 transition">
           <td class="py-3 px-4">
             <div class="font-bold text-stone-900">${combo.title}</div>
             <div class="text-[11px] text-stone-500 line-clamp-1 mt-0.5">${combo.rukkysVerdict || ''}</div>
           </td>
-          <td class="py-3 px-4 text-stone-600 font-semibold text-xs">${combo.spotName || 'Campus Spot'}</td>
+          <td class="py-3 px-4">${spotCellHtml}</td>
           <td class="py-3 px-4 font-extrabold text-stone-900 font-display text-sm">₦${combo.price.toLocaleString()}</td>
           <td class="py-3 px-4">
             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${badgeCategory}">${combo.category}</span>
@@ -513,7 +517,9 @@ function renderCombosTable() {
             <span class="font-black text-brand-600 font-display text-base">₦${combo.price.toLocaleString()}</span>
           </div>
           <h4 class="font-extrabold text-stone-900 text-sm leading-snug">${combo.title}</h4>
-          <p class="text-xs text-stone-500 font-medium">📍 ${combo.spotName}</p>
+          ${(combo.vendors && combo.vendors.length > 1)
+            ? `<div class="flex flex-wrap gap-1 mt-1">${combo.vendors.map(v => `<span class="text-[10px] font-bold bg-stone-100 text-stone-700 px-2 py-0.5 rounded-md border border-stone-200">📍 ${v.spotName}</span>`).join('')}</div>`
+            : `<p class="text-xs text-stone-500 font-medium">📍 ${combo.spotName || 'Campus Spot'}</p>`}
           
           <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-100 mt-2">
             <span class="text-[9px] font-black text-stone-400 uppercase tracking-wider block mb-1">Rukky's Formula:</span>

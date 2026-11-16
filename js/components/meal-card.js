@@ -78,14 +78,50 @@ window.MealCard = (function () {
       </li>
     `;
 
+    // Normalize vendor list
+    const vendors = (combo.vendors && combo.vendors.length > 0)
+      ? combo.vendors
+      : [{
+          spotId: combo.spotId,
+          spotName: combo.spotName || 'Campus Spot',
+          spotTag: combo.spotTag || 'Campus Spot',
+          price: combo.price
+        }];
+    const isMultiVendor = vendors.length > 1;
+
+    // Render individual vendor tags at the vendor corner
+    const vendorTagsHtml = vendors.map(v => {
+      const showPricePill = combo.hasPriceVariation && v.price && v.price !== combo.price;
+      return `
+        <button 
+          type="button" 
+          class="view-spot-btn inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 font-bold text-xs border border-stone-200/80 transition" 
+          data-spot-id="${v.spotId}" 
+          title="View ${v.spotName} location on campus"
+        >
+          <span class="text-brand-600 text-xs">📍</span>
+          <span class="truncate max-w-[130px] sm:max-w-[180px]">${v.spotName}</span>
+          ${showPricePill ? `<span class="text-[10px] text-stone-500 font-extrabold bg-white px-1.5 py-0.5 rounded-md border border-stone-200">(${formatNaira(v.price)})</span>` : ''}
+        </button>
+      `;
+    }).join('');
+
     card.innerHTML = `
       <!-- Header info: Badge, Title & Main Price -->
       <div class="flex items-start justify-between gap-3 mb-2.5">
         <div class="min-w-0 flex-1">
-          <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${theme.badgeClass} mb-1.5">
-            <span>${theme.tagIcon}</span>
-            <span>${combo.vibeBadge || 'Rukky Approved ⭐'}</span>
-          </span>
+          <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+            <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${theme.badgeClass}">
+              <span>${theme.tagIcon}</span>
+              <span>${combo.vibeBadge || 'Rukky Approved ⭐'}</span>
+            </span>
+            ${isMultiVendor ? `
+              <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-900 text-white shadow-xs">
+                <span>🏪</span>
+                <span>${vendors.length} Vendors</span>
+              </span>
+            ` : ''}
+          </div>
           <h2 class="text-base sm:text-lg font-extrabold text-stone-900 leading-snug group-hover:text-brand-600 transition-colors">
             ${combo.title}
           </h2>
@@ -122,12 +158,15 @@ window.MealCard = (function () {
 
       <!-- Where to get & Actions Footer -->
       <div class="pt-2.5 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <button class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs transition view-spot-btn max-w-[160px] sm:max-w-[200px]" title="View Food Spot Details">
-          <span class="text-brand-600 text-sm">📍</span>
-          <span class="truncate">${combo.spotName || 'Campus Spot'}</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
+          <span class="text-[10px] font-black text-stone-400 uppercase tracking-wider shrink-0 mr-0.5 flex items-center gap-1">
+            <span>📍</span>
+            <span>${isMultiVendor ? 'Available at:' : 'Get at:'}</span>
+          </span>
+          ${vendorTagsHtml}
+        </div>
 
-        <div class="flex items-center gap-1.5 shrink-0">
+        <div class="flex items-center gap-1.5 shrink-0 ml-auto">
           ${changeRemaining !== null ? `
             <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-xl">
               <span>💰 Left:</span>
@@ -136,6 +175,7 @@ window.MealCard = (function () {
           ` : ''}
           
           <button 
+            type="button"
             class="copy-combo-btn p-2 rounded-xl bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-700 transition" 
             title="Copy Meal Details to Share"
           >
@@ -145,11 +185,16 @@ window.MealCard = (function () {
       </div>
     `;
 
-    // Bind Spot Click
-    const spotBtn = card.querySelector('.view-spot-btn');
-    if (spotBtn && typeof onSpotClick === 'function') {
-      spotBtn.addEventListener('click', () => onSpotClick(combo.spotId));
-    }
+    // Bind Spot Click on every vendor tag
+    card.querySelectorAll('.view-spot-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sId = btn.getAttribute('data-spot-id') || combo.spotId;
+        if (typeof onSpotClick === 'function') {
+          onSpotClick(sId);
+        }
+      });
+    });
 
     // Bind Copy Button
     const copyBtn = card.querySelector('.copy-combo-btn');
@@ -157,7 +202,8 @@ window.MealCard = (function () {
       copyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const pricePrefix = combo.hasFromPrice ? 'Starts from ' : '';
-        const shareText = `🍽️ Rukky's Pick at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nLocation: ${combo.spotName || 'Campus Spot'}`;
+        const vendorNames = vendors.map(v => v.spotName).join(', ');
+        const shareText = `🍽️ Rukky's Pick at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nAvailable at: ${vendorNames}`;
         copyToClipboard(shareText);
         if (typeof onCopySuccess === 'function') {
           onCopySuccess();

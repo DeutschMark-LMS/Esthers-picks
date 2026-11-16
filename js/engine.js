@@ -507,15 +507,99 @@
         spotList.forEach(c => generated.push(c));
       });
 
-      // Filter out redundant duplicates if any
-      const uniqueMap = new Map();
+      // Cross-vendor consolidation:
+      // If options.deduplicateAcrossVendors is false, keep combos distinct per vendor
+      const deduplicateAcrossVendors = options.deduplicateAcrossVendors !== false;
+
+      if (!deduplicateAcrossVendors) {
+        const uniqueMap = new Map();
+        generated.forEach(combo => {
+          const key = (combo.title || '') + (combo.spotId || '');
+          if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, {
+              ...combo,
+              vendors: [{
+                spotId: combo.spotId,
+                spotName: combo.spotName || 'Campus Spot',
+                spotTag: combo.spotTag || 'Campus Spot',
+                price: combo.price,
+                hasFromPrice: Boolean(combo.hasFromPrice),
+                items: combo.items || []
+              }],
+              isMultiVendor: false
+            });
+          }
+        });
+        return Array.from(uniqueMap.values());
+      }
+
+      // Consolidate identical meal combinations across multiple vendors:
+      // Instead of repeating the same meal multiple times for each canteen,
+      // produce a single combo card carrying tags of each vendor offering it.
+      const comboGroups = new Map();
+
       generated.forEach(combo => {
-        if (!uniqueMap.has(combo.title + combo.spotId)) {
-          uniqueMap.set(combo.title + combo.spotId, combo);
+        // Build a canonical combo key based on sorted items or normalized title
+        let normKey = '';
+        if (combo.items && combo.items.length > 0) {
+          normKey = combo.items
+            .map(it => (it.name || '').toLowerCase().trim().replace(/\s+/g, ' '))
+            .sort()
+            .join(' + ');
+        } else {
+          normKey = (combo.title || '').toLowerCase().trim().replace(/\s+/g, ' ');
+        }
+
+        const vendorEntry = {
+          spotId: combo.spotId,
+          spotName: combo.spotName || 'Campus Spot',
+          spotTag: combo.spotTag || 'Campus Spot',
+          price: combo.price,
+          hasFromPrice: Boolean(combo.hasFromPrice),
+          items: combo.items || []
+        };
+
+        if (!comboGroups.has(normKey)) {
+          comboGroups.set(normKey, {
+            ...combo,
+            vendors: [vendorEntry],
+            isMultiVendor: false,
+            minPrice: combo.price,
+            maxPrice: combo.price,
+            hasPriceVariation: false
+          });
+        } else {
+          const existing = comboGroups.get(normKey);
+
+          // Avoid duplicating same vendor
+          const alreadyHasVendor = existing.vendors.some(v => v.spotId === combo.spotId);
+          if (!alreadyHasVendor) {
+            existing.vendors.push(vendorEntry);
+            existing.isMultiVendor = true;
+
+            // Keep lowest price as the main display price
+            if (combo.price < existing.price) {
+              existing.price = combo.price;
+              existing.spotId = combo.spotId;
+              existing.spotName = combo.spotName;
+              existing.spotTag = combo.spotTag;
+            }
+
+            existing.minPrice = Math.min(existing.minPrice, combo.price);
+            existing.maxPrice = Math.max(existing.maxPrice, combo.price);
+
+            if (existing.minPrice !== existing.maxPrice) {
+              existing.hasPriceVariation = true;
+              existing.hasFromPrice = true;
+            }
+            if (combo.hasFromPrice) {
+              existing.hasFromPrice = true;
+            }
+          }
         }
       });
 
-      const result = Array.from(uniqueMap.values());
+      const result = Array.from(comboGroups.values());
 
       // Return generated combos or empty array if none met criteria
       return result;
@@ -533,8 +617,8 @@
      * Get combos specifically generated for a single vendor spot
      */
     mixForVendor(spotId, items = [], spots = []) {
-      const all = this.generateCombos(items, spots);
-      return all.filter(c => c.spotId === spotId);
+      const all = this.generateCombos(items, spots, { deduplicateAcrossVendors: false });
+      return all.filter(c => c.spotId === spotId || (c.vendors && c.vendors.some(v => v.spotId === spotId)));
     },
 
     /**
