@@ -156,26 +156,29 @@
 
   // --- PWA INSTALLATION CONTROLLER ---
   function updateInstallUI(status) {
-    const installBtnText = document.getElementById('installAppBtnText');
-    const navInstallText = document.getElementById('navInstallText');
-    const installBtn = document.getElementById('installAppBtn');
+    const installSection = document.getElementById('installAppSection');
+    const navInstall = document.getElementById('navInstall');
 
     if (status === 'installed') {
-      if (installBtnText) installBtnText.innerText = 'App Installed ✅';
-      if (navInstallText) navInstallText.innerText = 'Installed';
-      if (installBtn) {
-        installBtn.classList.remove('bg-white', 'text-brand-700', 'hover:bg-orange-50');
-        installBtn.classList.add('bg-emerald-500', 'text-white', 'hover:bg-emerald-600');
-      }
+      // Once installed (or running as standalone app), completely hide both the feed banner and nav button
+      if (installSection) installSection.classList.add('hidden');
+      if (navInstall) navInstall.classList.add('hidden');
+      try {
+        localStorage.setItem('rukkys_pwa_installed', 'true');
+      } catch (e) {}
     } else if (status === 'ready') {
-      if (installBtnText) installBtnText.innerText = 'Install App 📲';
-      if (navInstallText) navInstallText.innerText = 'Install';
+      if (installSection) installSection.classList.remove('hidden');
+      if (navInstall) navInstall.classList.remove('hidden');
     }
   }
 
   async function triggerPWAInstall() {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) 
+      || window.navigator.standalone === true 
+      || (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://'));
+
     if (isStandalone) {
+      updateInstallUI('installed');
       if (window.AppModals) {
         window.AppModals.showToast("You're already using the installed app! 🎉", '✅');
       }
@@ -190,6 +193,9 @@
           updateInstallUI('installed');
           if (window.RukkysAnalytics) {
             window.RukkysAnalytics.trackEvent('pwa_install_accepted', { label: 'User installed PWA' });
+          }
+          if (window.AppModals) {
+            window.AppModals.showToast("Rukky's Picks installed! Check your home screen 🎉", '📲');
           }
         }
       } catch (err) {
@@ -207,9 +213,14 @@
   }
 
   function initPWA() {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    // Detect if app is running in installed Standalone mode (from home screen)
+    const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) 
+      || window.navigator.standalone === true 
+      || (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://'));
+
     if (isStandalone) {
       updateInstallUI('installed');
+      return;
     }
 
     // Register Service Worker
