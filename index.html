@@ -4,6 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Rukky's Picks | Wellspring University Food Finder</title>
+  
+  <!-- PWA Manifest & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ea580c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Rukky's Picks">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Plus Jakarta Sans & Inter -->
@@ -250,10 +262,40 @@
         </button>
       </div>
 
+      <!-- Install App Banner Card at the bottom of meals feed -->
+      <section id="installAppSection" class="mt-6 mb-2 px-1">
+        <div class="bg-gradient-to-br from-brand-600 via-orange-600 to-amber-600 rounded-3xl p-5 text-white shadow-xl shadow-brand-500/20 relative overflow-hidden border border-orange-400/30">
+          <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+          <div class="flex items-start gap-3.5 relative z-10">
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl shadow-inner shrink-0 border border-white/30">
+              📲
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="font-extrabold text-base tracking-tight text-white">Install Rukky's Picks</h3>
+                <span class="text-[9px] font-black uppercase tracking-wider bg-white/25 px-2 py-0.5 rounded-full text-white">PWA App</span>
+              </div>
+              <p class="text-xs text-orange-100 mt-1 leading-relaxed">
+                Add to your phone for instant 1-tap food combos, fast offline loading, and zero app store downloads!
+              </p>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/20 flex items-center justify-between gap-3 relative z-10">
+            <span class="text-[11px] font-bold text-orange-100 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Free & Fast Setup
+            </span>
+            <button id="installAppBtn" type="button" class="px-5 py-2.5 bg-white text-brand-700 hover:bg-orange-50 font-extrabold text-xs rounded-xl shadow-lg active:scale-95 transition-all flex items-center gap-2 tap-highlight-transparent cursor-pointer">
+              <span id="installAppBtnText">Install App 📲</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- Sticky Bottom Quick Actions Bar -->
-    <nav class="fixed bottom-0 max-w-md w-full bg-white/95 backdrop-blur-md border-t border-stone-200 py-2.5 px-6 z-40 flex items-center justify-around shadow-lg">
+    <nav class="fixed bottom-0 max-w-md w-full bg-white/95 backdrop-blur-md border-t border-stone-200 py-2.5 px-4 z-40 flex items-center justify-around shadow-lg">
       <button id="navExplore" class="flex flex-col items-center text-brand-600 text-[11px] font-black space-y-1 tap-highlight-transparent">
         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
         <span>Meals</span>
@@ -272,6 +314,11 @@
       <button id="navRukkyTip" class="flex flex-col items-center text-stone-500 hover:text-stone-900 text-[11px] font-bold space-y-1 transition tap-highlight-transparent">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
         <span>Tips</span>
+      </button>
+
+      <button id="navInstall" class="flex flex-col items-center text-brand-600 hover:text-brand-700 text-[11px] font-bold space-y-1 transition tap-highlight-transparent">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+        <span id="navInstallText">Install</span>
       </button>
     </nav>
 
@@ -359,6 +406,50 @@
             <p class="font-bold text-emerald-800 mb-0.5">3. Always Save Money for Cold Water</p>
             <p class="text-stone-600">Always keep at least ₦200 for cold water in your budget. The weather on campus can be very hot, and you will need drinking water after eating.</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: iOS & Safari Install Guide -->
+    <div id="iosInstallModal" class="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 shadow-2xl">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl">📲</span>
+            <div>
+              <h3 class="font-bold text-stone-900 text-base">Install on Your iPhone</h3>
+              <p class="text-[11px] text-stone-500">Quick 2-step setup on Apple Safari</p>
+            </div>
+          </div>
+          <button class="modal-close p-1.5 rounded-full text-stone-400 hover:bg-stone-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="mt-4 space-y-3 text-xs text-stone-700">
+          <div class="flex items-start gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-200/80">
+            <div class="w-7 h-7 rounded-full bg-brand-600 text-white font-black text-xs flex items-center justify-center shrink-0">1</div>
+            <div>
+              <p class="font-bold text-stone-900">Tap the Share Icon</p>
+              <p class="text-stone-600 mt-0.5">At the bottom toolbar of Safari, tap the <strong>Share</strong> button (<span class="font-mono text-sm">⎋</span> or square with arrow pointing up).</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-200/80">
+            <div class="w-7 h-7 rounded-full bg-brand-600 text-white font-black text-xs flex items-center justify-center shrink-0">2</div>
+            <div>
+              <p class="font-bold text-stone-900">Choose "Add to Home Screen"</p>
+              <p class="text-stone-600 mt-0.5">Scroll down the share options and tap <strong>"Add to Home Screen ➕"</strong>.</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-200/80">
+            <div class="w-7 h-7 rounded-full bg-brand-600 text-white font-black text-xs flex items-center justify-center shrink-0">3</div>
+            <div>
+              <p class="font-bold text-stone-900">Tap "Add" in Top Right</p>
+              <p class="text-stone-600 mt-0.5">Rukky's Picks will appear directly on your home screen like a native app!</p>
+            </div>
+          </div>
+          <button type="button" class="modal-close w-full py-3 bg-stone-900 text-white rounded-xl font-bold text-xs shadow-md hover:bg-stone-800 transition mt-2">
+            Got it, thanks!
+          </button>
         </div>
       </div>
     </div>

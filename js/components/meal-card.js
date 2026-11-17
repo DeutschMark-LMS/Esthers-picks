@@ -9,18 +9,30 @@ window.MealCard = (function () {
   }
 
   function copyToClipboard(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    try {
-      document.execCommand('copy');
-    } catch (err) {
-      console.error('Failed to copy', err);
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      return;
     }
-    document.body.removeChild(textarea);
+    fallbackCopy(text);
+  }
+
+  function fallbackCopy(text) {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      if (typeof textarea.select === 'function') {
+        textarea.select();
+      }
+      if (typeof document.execCommand === 'function') {
+        document.execCommand('copy');
+      }
+      document.body.removeChild(textarea);
+    } catch (err) {
+      console.warn('Fallback copy failed', err);
+    }
   }
 
   // Category Color Theming (Semantic Badges)

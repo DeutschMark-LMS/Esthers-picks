@@ -1299,7 +1299,7 @@ window.deleteSuggestion = async (id) => {
 // --- FIREBASE CONFIG FORM ---
 const fbForm = document.getElementById('firebaseConfigForm');
 if (fbForm) {
-  const existingConfig = window.dbService.getSavedConfig();
+  const existingConfig = (window.dbService && window.dbService.getSavedConfig) ? window.dbService.getSavedConfig() : null;
   if (existingConfig) {
     document.getElementById('fbApiKey').value = existingConfig.apiKey || '';
     document.getElementById('fbProjectId').value = existingConfig.projectId || '';
@@ -1669,9 +1669,10 @@ function initBackupUI() {
         allItems = [];
         allSpecials = [];
         allCombos = [];
-        renderItems();
-        renderSpecials();
-        updateEngineCombos();
+        renderItemsTable();
+        renderSpecialsGrid();
+        renderCombosTable();
+        renderCampusHacksGrid();
         showToast('All meals cleared! Campus database is now a 100% clean slate.', '🧹');
       } catch (err) {
         alert('Failed to clear meals: ' + err.message);

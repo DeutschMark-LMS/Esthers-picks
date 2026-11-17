@@ -16,6 +16,7 @@
   let currentBudget = null;
   let currentFilter = 'all';
   let currentSort = 'best';
+  let deferredInstallPrompt = null;
 
   // DOM Elements
   const budgetInput = document.getElementById('budgetInput');
@@ -153,6 +154,102 @@
     window.AppModals.showToast(`Thank you ${data.suggesterName}! Your food suggestion has been sent for review!`, '🙌');
   }
 
+  // --- PWA INSTALLATION CONTROLLER ---
+  function updateInstallUI(status) {
+    const installBtnText = document.getElementById('installAppBtnText');
+    const navInstallText = document.getElementById('navInstallText');
+    const installBtn = document.getElementById('installAppBtn');
+
+    if (status === 'installed') {
+      if (installBtnText) installBtnText.innerText = 'App Installed ✅';
+      if (navInstallText) navInstallText.innerText = 'Installed';
+      if (installBtn) {
+        installBtn.classList.remove('bg-white', 'text-brand-700', 'hover:bg-orange-50');
+        installBtn.classList.add('bg-emerald-500', 'text-white', 'hover:bg-emerald-600');
+      }
+    } else if (status === 'ready') {
+      if (installBtnText) installBtnText.innerText = 'Install App 📲';
+      if (navInstallText) navInstallText.innerText = 'Install';
+    }
+  }
+
+  async function triggerPWAInstall() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) {
+      if (window.AppModals) {
+        window.AppModals.showToast("You're already using the installed app! 🎉", '✅');
+      }
+      return;
+    }
+
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      try {
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          updateInstallUI('installed');
+          if (window.RukkysAnalytics) {
+            window.RukkysAnalytics.trackEvent('pwa_install_accepted', { label: 'User installed PWA' });
+          }
+        }
+      } catch (err) {
+        console.warn('Error during install prompt:', err);
+      }
+      deferredInstallPrompt = null;
+    } else {
+      // iOS Safari or browser where prompt is not programmatically triggerable
+      if (window.AppModals && window.AppModals.openInstallGuide) {
+        window.AppModals.openInstallGuide();
+      } else {
+        alert("To install Rukky's Picks, tap your browser's share or menu icon and select 'Add to Home Screen' 📲");
+      }
+    }
+  }
+
+  function initPWA() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) {
+      updateInstallUI('installed');
+    }
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => {
+            console.log('[PWA] Service Worker registered:', reg.scope);
+          })
+          .catch(err => {
+            console.warn('[PWA] Service Worker registration failed:', err);
+          });
+      });
+    }
+
+    // Capture install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      updateInstallUI('ready');
+      console.log('[PWA] Captured beforeinstallprompt');
+    });
+
+    // App installed event
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      updateInstallUI('installed');
+      if (window.AppModals) {
+        window.AppModals.showToast("Rukky's Picks added to your home screen! 🎉", '📲');
+      }
+    });
+
+    // Wire Install App Buttons
+    const installAppBtn = document.getElementById('installAppBtn');
+    if (installAppBtn) installAppBtn.addEventListener('click', triggerPWAInstall);
+
+    const navInstall = document.getElementById('navInstall');
+    if (navInstall) navInstall.addEventListener('click', triggerPWAInstall);
+  }
+
   // --- INITIALIZATION ---
   function init() {
     // 1. Initialize Modals Component
@@ -249,7 +346,14 @@
         }
         if (pool.length === 0) pool = allCombos;
 
+        if (pool.length === 0) {
+          if (window.AppModals) window.AppModals.showToast("No meals available to pick right now!", "🍲");
+          return;
+        }
+
         const randomPick = pool[Math.floor(Math.random() * pool.length)];
+        if (!randomPick) return;
+
         budgetInput.value = randomPick.price;
         currentBudget = randomPick.price;
         currentFilter = 'all';
@@ -301,10 +405,13 @@
     const infoBtn = document.getElementById('infoBtn');
     if (infoBtn) infoBtn.addEventListener('click', () => window.AppModals.openTips());
 
-    // 10. Initial Engine Computation & Render
+    // 10. PWA Installation Controller
+    initPWA();
+
+    // 11. Initial Engine Computation & Render
     refreshEngineCombos();
 
-    // 11. Live Sync with Firestore / Local Storage
+    // 12. Live Sync with Firestore / Local Storage
     if (window.dbService) {
       // Primary: Listen to individual food items & let Rukky's Engine mix dynamically
       window.dbService.listenItems(items => {

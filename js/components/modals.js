@@ -6,6 +6,7 @@ window.AppModals = (function () {
   const spotsModal = document.getElementById('spotsModal');
   const suggestModal = document.getElementById('suggestModal');
   const hacksModal = document.getElementById('hacksModal');
+  const iosInstallModal = document.getElementById('iosInstallModal');
   const spotsListContent = document.getElementById('spotsListContent');
   const toast = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
@@ -77,8 +78,12 @@ window.AppModals = (function () {
     if (hacksModal) hacksModal.classList.remove('hidden');
   }
 
+  function openInstallGuide() {
+    if (iosInstallModal) iosInstallModal.classList.remove('hidden');
+  }
+
   function closeAll() {
-    [spotsModal, suggestModal, hacksModal].forEach(m => {
+    [spotsModal, suggestModal, hacksModal, iosInstallModal].forEach(m => {
       if (m) m.classList.add('hidden');
     });
   }
@@ -90,7 +95,7 @@ window.AppModals = (function () {
     });
 
     // Close on backdrop click
-    [spotsModal, suggestModal, hacksModal].forEach(m => {
+    [spotsModal, suggestModal, hacksModal, iosInstallModal].forEach(m => {
       if (m) {
         m.addEventListener('click', (e) => {
           if (e.target === m) m.classList.add('hidden');
@@ -129,6 +134,7 @@ window.AppModals = (function () {
     openSpots,
     openSuggest,
     openTips,
+    openInstallGuide,
     closeAll,
     showToast
   };

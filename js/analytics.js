@@ -692,7 +692,8 @@ Chat with Rukky's Picks Campus Advertising team!`;
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     window.addEventListener('DOMContentLoaded', () => {
       // Determine page
-      const path = window.location.pathname.toLowerCase();
+      const rawPath = (window.location && (window.location.pathname || window.location.href || '')) || '';
+      const path = String(rawPath).toLowerCase();
       let page = 'student_home';
       if (path.includes('admin')) {
         page = 'admin_portal';
