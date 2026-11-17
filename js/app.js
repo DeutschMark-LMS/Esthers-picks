@@ -10,9 +10,8 @@
   let allItems = (window.dbService && window.dbService.getItemsSync) ? window.dbService.getItemsSync() : (window.DEFAULT_ITEMS || []);
   let allSpots = (window.dbService && window.dbService.getSpotsSync) ? window.dbService.getSpotsSync() : (window.DEFAULT_SPOTS || []);
   let allSpecials = (window.dbService && window.dbService.getSpecialsSync) ? window.dbService.getSpecialsSync() : (window.DEFAULT_SPECIALS || []);
-  let allCombos = window.RukkysEngine
-    ? window.RukkysEngine.generateCombos(allItems, allSpots)
-    : (window.DEFAULT_COMBOS || []);
+  let curatedCombos = (window.dbService && window.dbService.getCombosSync) ? window.dbService.getCombosSync() : (window.DEFAULT_COMBOS || []);
+  let allCombos = [];
 
   let currentBudget = null;
   let currentFilter = 'all';
@@ -28,13 +27,14 @@
   const surpriseBtn = document.getElementById('surpriseBtn');
   const resetMinBtn = document.getElementById('resetMinBtn');
 
-  // --- REFRESH COMBOS VIA RUKKY'S ENGINE ---
+  // --- REFRESH COMBOS VIA RUKKY'S ENGINE & CURATED CAMPUS HACKS ---
   function refreshEngineCombos() {
-    if (window.RukkysEngine) {
-      allCombos = window.RukkysEngine.generateCombos(allItems, allSpots);
-    } else {
-      allCombos = window.DEFAULT_COMBOS || [];
-    }
+    const generated = window.RukkysEngine
+      ? window.RukkysEngine.generateCombos(allItems, allSpots)
+      : (window.DEFAULT_COMBOS || []);
+
+    // Merge manual curated Campus Hacks with generated combos
+    allCombos = [...curatedCombos, ...generated];
     renderCombos();
   }
 
@@ -328,6 +328,16 @@
           window.SpecialsBoard.updateSpecials(allSpecials);
         }
       });
+
+      // Listen to curated combos & Campus Hacks
+      if (window.dbService.listenCombos) {
+        window.dbService.listenCombos(combos => {
+          if (Array.isArray(combos)) {
+            curatedCombos = combos.filter(c => c.active !== false);
+            refreshEngineCombos();
+          }
+        });
+      }
 
       if (window.dbService.listenEngineRules) {
         window.dbService.listenEngineRules(rules => {

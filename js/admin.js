@@ -13,6 +13,7 @@
 // State
 let allItems = (window.dbService && window.dbService.getItemsSync) ? window.dbService.getItemsSync() : [];
 let allCombos = [];
+let curatedCombos = (window.dbService && window.dbService.getCombosSync) ? window.dbService.getCombosSync() : [];
 let allSpecials = (window.dbService && window.dbService.getSpecialsSync) ? window.dbService.getSpecialsSync() : [];
 let allSpots = (window.dbService && window.dbService.getSpotsSync) ? window.dbService.getSpotsSync() : (window.DEFAULT_SPOTS || []);
 let allSuggestions = [];
@@ -42,6 +43,7 @@ const cloudStatusText = document.getElementById('cloudStatusText');
 const itemModal = document.getElementById('itemModal');
 const specialModal = document.getElementById('specialModal');
 const spotModal = document.getElementById('spotModal');
+const campusHackModal = document.getElementById('campusHackModal');
 const toast = document.getElementById('toast');
 
 // --- Notification Toast ---
@@ -273,6 +275,16 @@ function initDataListeners() {
     updateTabBadges();
   });
 
+  // 4B. Listen Curated Combos & Campus Hacks
+  if (window.dbService && window.dbService.listenCombos) {
+    window.dbService.listenCombos(combos => {
+      curatedCombos = combos || [];
+      renderCampusHacksGrid();
+      updateEngineCombos();
+      updateTabBadges();
+    });
+  }
+
   // 5. Listen Engine Rules
   if (window.dbService && window.dbService.listenEngineRules) {
     window.dbService.listenEngineRules(rules => {
@@ -431,14 +443,15 @@ function updateEngineCombos() {
   if (!window.RukkysEngine) return;
 
   const generatedCombos = window.RukkysEngine.generateCombos(allItems, allSpots);
-  allCombos = generatedCombos;
+  allCombos = [...curatedCombos, ...generatedCombos];
 
   const statCombos = document.getElementById('statCombosCount');
-  if (statCombos) statCombos.textContent = generatedCombos.length;
+  if (statCombos) statCombos.textContent = allCombos.length;
 
   const badge = document.getElementById('engineCombosBadge');
-  if (badge) badge.textContent = `${generatedCombos.length} Combos Generated`;
+  if (badge) badge.textContent = `${allCombos.length} Combos Total (${curatedCombos.length} Hacks)`;
 
+  renderCampusHacksGrid();
   renderCombosTable();
 }
 
@@ -905,6 +918,300 @@ window.deleteSpecial = async (id) => {
     showToast('Daily deal removed', '🗑️');
   }
 };
+
+// --- CAMPUS HACKS (CURATED MULTI-VENDOR COMBOS) ---
+function renderCampusHacksGrid() {
+  const container = document.getElementById('campusHacksGrid');
+  const badge = document.getElementById('campusHacksBadge');
+  if (badge) badge.textContent = `${curatedCombos.length} Hack${curatedCombos.length === 1 ? '' : 's'}`;
+  if (!container) return;
+
+  if (!curatedCombos.length) {
+    container.innerHTML = `
+      <div class="col-span-full py-6 text-center text-xs text-stone-400 bg-white/70 rounded-xl border border-dashed border-purple-200">
+        <span class="text-2xl block mb-1">🎒</span>
+        <p class="font-bold text-stone-600">No manual campus hacks added yet.</p>
+        <p class="text-[11px] text-stone-400 mt-0.5">Whenever you discover a great multi-vendor combo, tap "+ Add Campus Hack" above to share it with students!</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = curatedCombos.map(hack => {
+    const itemsHtml = (hack.items || []).map(it => `
+      <div class="flex items-center justify-between text-xs py-1 border-b border-stone-100 last:border-0">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
+          <span class="font-medium text-stone-800 truncate">${it.name}</span>
+          <span class="text-[9px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded shrink-0">📍 ${it.spotName}</span>
+        </div>
+        <span class="font-extrabold text-stone-700 text-xs shrink-0 ml-2 font-display">₦${Number(it.price).toLocaleString()}</span>
+      </div>
+    `).join('');
+
+    return `
+      <div class="bg-white rounded-2xl p-4 border border-purple-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="bg-purple-100 text-purple-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-purple-200 uppercase">
+              🎒 Campus Hack
+            </span>
+            <span class="text-base font-black text-purple-900 font-display">₦${Number(hack.price).toLocaleString()}</span>
+          </div>
+          <h4 class="font-extrabold text-stone-900 text-sm leading-snug mb-2">${hack.title}</h4>
+          
+          <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-100 mb-2.5 space-y-0.5">
+            <span class="text-[9px] font-black text-stone-400 uppercase tracking-wider block mb-1">Multi-Vendor Route:</span>
+            ${itemsHtml}
+          </div>
+
+          <p class="text-xs text-stone-600 italic line-clamp-2 mb-3">"${hack.rukkysVerdict || ''}"</p>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+          <button type="button" class="edit-hack-btn px-2.5 py-1 text-xs font-bold text-stone-700 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition" data-id="${hack.id}">
+            ✏️ Edit
+          </button>
+          <button type="button" class="delete-hack-btn px-2.5 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition" data-id="${hack.id}">
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Bind edit & delete buttons
+  container.querySelectorAll('.edit-hack-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const hack = curatedCombos.find(c => c.id === id);
+      if (hack) openCampusHackModal(hack);
+    });
+  });
+
+  container.querySelectorAll('.delete-hack-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      if (confirm('Delete this Campus Hack combo? It will be removed from the live student app.')) {
+        await window.dbService.deleteCombo(id);
+        showToast('Campus Hack removed', '🗑️');
+      }
+    });
+  });
+}
+
+function openCampusHackModal(hack = null) {
+  const modal = document.getElementById('campusHackModal');
+  const form = document.getElementById('campusHackForm');
+  const titleElem = document.getElementById('campusHackModalTitle');
+  const editIdInput = document.getElementById('campusHackEditId');
+  const titleInput = document.getElementById('hackTitle');
+  const categorySelect = document.getElementById('hackCategory');
+  const totalPriceInput = document.getElementById('hackTotalPrice');
+  const verdictInput = document.getElementById('hackVerdict');
+  const container = document.getElementById('hackItemsContainer');
+
+  if (!modal || !form || !container) return;
+
+  container.innerHTML = '';
+
+  if (hack) {
+    if (titleElem) titleElem.innerHTML = '<span>🎒</span><span>Edit Campus Hack</span>';
+    if (editIdInput) editIdInput.value = hack.id;
+    if (titleInput) titleInput.value = hack.title || '';
+    if (categorySelect) categorySelect.value = hack.category || 'heavy';
+    if (totalPriceInput) totalPriceInput.value = hack.price || '';
+    if (verdictInput) verdictInput.value = hack.rukkysVerdict || '';
+
+    if (Array.isArray(hack.items) && hack.items.length > 0) {
+      hack.items.forEach((it, idx) => {
+        addHackItemRow(it.name, it.price, it.spotId, idx >= 2);
+      });
+    } else {
+      addHackItemRow('', '', allSpots[0]?.id || '', false);
+      addHackItemRow('', '', allSpots[1]?.id || allSpots[0]?.id || '', false);
+    }
+  } else {
+    if (titleElem) titleElem.innerHTML = '<span>🎒</span><span>Add Campus Hack (Multi-Vendor)</span>';
+    if (editIdInput) editIdInput.value = '';
+    form.reset();
+    if (editIdInput) editIdInput.value = '';
+    addHackItemRow('', '', allSpots[0]?.id || '', false);
+    addHackItemRow('', '', allSpots[1]?.id || allSpots[0]?.id || '', false);
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function addHackItemRow(name = '', price = '', spotId = '', canDelete = true) {
+  const container = document.getElementById('hackItemsContainer');
+  if (!container) return;
+
+  const rowIndex = container.querySelectorAll('.hack-item-row').length + 1;
+  const spotOptionsHtml = (allSpots || []).map(sp => `
+    <option value="${sp.id}" ${sp.id === spotId ? 'selected' : ''}>📍 ${sp.name}</option>
+  `).join('');
+
+  const rowDiv = document.createElement('div');
+  rowDiv.className = 'hack-item-row bg-stone-50 p-2.5 rounded-xl border border-stone-200/80 space-y-2';
+  rowDiv.innerHTML = `
+    <div class="flex items-center justify-between">
+      <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-800 flex items-center gap-1">
+        <span>📍 Stop ${rowIndex}</span>
+      </span>
+      ${canDelete ? `<button type="button" class="remove-hack-row-btn text-stone-400 hover:text-red-600 font-bold p-0.5 text-[11px]">✕ Remove</button>` : ''}
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+      <div class="sm:col-span-5">
+        <input type="text" class="hack-item-name w-full p-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold focus:outline-none focus:border-purple-500" placeholder="e.g. Beans Porridge" value="${name}" required>
+      </div>
+      <div class="sm:col-span-3">
+        <div class="relative flex items-center">
+          <span class="absolute left-2.5 text-stone-400 text-xs font-bold font-display">₦</span>
+          <input type="number" class="hack-item-price w-full pl-6 pr-2 py-2.5 rounded-lg bg-white border border-stone-200 text-xs font-bold font-display focus:outline-none focus:border-purple-500" placeholder="600" min="50" step="50" value="${price}" required>
+        </div>
+      </div>
+      <div class="sm:col-span-4">
+        <select class="hack-item-spot w-full p-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold focus:outline-none focus:border-purple-500">
+          ${spotOptionsHtml}
+        </select>
+      </div>
+    </div>
+  `;
+
+  const removeBtn = rowDiv.querySelector('.remove-hack-row-btn');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', () => {
+      rowDiv.remove();
+      recalculateHackTotalPrice();
+      renumberHackRows();
+    });
+  }
+
+  const priceInput = rowDiv.querySelector('.hack-item-price');
+  if (priceInput) {
+    priceInput.addEventListener('input', recalculateHackTotalPrice);
+  }
+
+  container.appendChild(rowDiv);
+  recalculateHackTotalPrice();
+}
+
+function renumberHackRows() {
+  const container = document.getElementById('hackItemsContainer');
+  if (!container) return;
+  container.querySelectorAll('.hack-item-row').forEach((row, idx) => {
+    const badge = row.querySelector('.text-purple-800');
+    if (badge) badge.innerHTML = `<span>📍 Stop ${idx + 1}</span>`;
+  });
+}
+
+function recalculateHackTotalPrice() {
+  const container = document.getElementById('hackItemsContainer');
+  const totalPriceInput = document.getElementById('hackTotalPrice');
+  if (!container || !totalPriceInput) return;
+
+  let sum = 0;
+  container.querySelectorAll('.hack-item-price').forEach(inp => {
+    const v = parseFloat(inp.value);
+    if (!isNaN(v) && v > 0) sum += v;
+  });
+
+  if (sum > 0) {
+    totalPriceInput.value = sum;
+  }
+}
+
+const campusHackForm = document.getElementById('campusHackForm');
+if (campusHackForm) {
+  campusHackForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const editId = document.getElementById('campusHackEditId').value;
+    const title = document.getElementById('hackTitle').value.trim();
+    const category = document.getElementById('hackCategory').value;
+    const totalPrice = parseFloat(document.getElementById('hackTotalPrice').value);
+    const verdict = document.getElementById('hackVerdict').value.trim();
+    const container = document.getElementById('hackItemsContainer');
+
+    const items = [];
+    const stopsMap = new Map();
+
+    container.querySelectorAll('.hack-item-row').forEach(row => {
+      const name = row.querySelector('.hack-item-name').value.trim();
+      const price = parseFloat(row.querySelector('.hack-item-price').value) || 0;
+      const spotSelect = row.querySelector('.hack-item-spot');
+      const spotId = spotSelect.value;
+      const spotName = spotSelect.options[spotSelect.selectedIndex]?.text?.replace('📍 ', '') || 'Campus Spot';
+
+      items.push({
+        name,
+        price,
+        spotId,
+        spotName,
+        pricingType: 'per_portion'
+      });
+
+      if (!stopsMap.has(spotId)) {
+        stopsMap.set(spotId, {
+          spotId,
+          spotName,
+          step: stopsMap.size + 1,
+          price: price
+        });
+      }
+    });
+
+    if (items.length < 2) {
+      alert('Please add at least 2 items from different canteens for a Campus Hack!');
+      return;
+    }
+
+    const stops = Array.from(stopsMap.values());
+
+    const hackData = {
+      id: editId || ('hack-' + Date.now()),
+      title,
+      category,
+      price: totalPrice,
+      isCampusHack: true,
+      vibeBadge: `Campus Hack (${stops.length} Spots) 🎒`,
+      rating: "9.8/10",
+      rukkysVerdict: verdict,
+      hasFromPrice: false,
+      items,
+      stops,
+      spotId: items[0].spotId,
+      spotName: items[0].spotName,
+      vendors: stops,
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      if (editId) {
+        await window.dbService.updateCombo(editId, hackData);
+        showToast('Campus Hack updated! 🎒', '✏️');
+      } else {
+        await window.dbService.addCombo(hackData);
+        showToast('Campus Hack published to student app! 🎒', '🎉');
+      }
+      document.getElementById('campusHackModal').classList.add('hidden');
+    } catch (err) {
+      alert('Error saving Campus Hack: ' + err.message);
+    }
+  });
+}
+
+const openAddCampusHackBtn = document.getElementById('openAddCampusHackBtn');
+if (openAddCampusHackBtn) {
+  openAddCampusHackBtn.addEventListener('click', () => openCampusHackModal());
+}
+
+const addHackItemRowBtn = document.getElementById('addHackItemRowBtn');
+if (addHackItemRowBtn) {
+  addHackItemRowBtn.addEventListener('click', () => {
+    addHackItemRow('', '', allSpots[0]?.id || '', true);
+  });
+}
 
 // --- SPOTS ACTIONS ---
 const openAddSpotBtn = document.getElementById('openAddSpotBtn');
@@ -1382,13 +1689,13 @@ function initBackupUI() {
 // Modal close buttons
 document.querySelectorAll('.modal-close').forEach(btn => {
   btn.addEventListener('click', () => {
-    [itemModal, specialModal, spotModal].forEach(m => {
+    [itemModal, specialModal, spotModal, campusHackModal].forEach(m => {
       if (m) m.classList.add('hidden');
     });
   });
 });
 
-[itemModal, specialModal, spotModal].forEach(modal => {
+[itemModal, specialModal, spotModal, campusHackModal].forEach(modal => {
   if (modal) {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) modal.classList.add('hidden');

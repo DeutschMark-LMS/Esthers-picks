@@ -60,9 +60,10 @@ window.MealCard = (function () {
 
     const itemsListHtml = hasDetailedItems ? (combo.items || []).map(it => `
       <li class="flex items-center justify-between text-xs py-1.5 border-b border-stone-100 last:border-0">
-        <span class="text-stone-800 font-medium flex items-center gap-2 min-w-0">
-          <span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>
+        <span class="text-stone-800 font-medium flex items-center gap-1.5 min-w-0">
+          <span class="w-1.5 h-1.5 rounded-full ${combo.isCampusHack ? 'bg-purple-600' : 'bg-brand-500'} shrink-0"></span>
           <span class="truncate">${it.name}</span>
+          ${it.spotName ? `<span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded-md shrink-0">📍 ${it.spotName}</span>` : ''}
         </span>
         <span class="font-extrabold text-stone-600 text-xs shrink-0 ml-2 font-display">
           ${it.pricingType === 'from_price' ? '<span class="text-[9px] uppercase font-black text-amber-700 bg-amber-100 border border-amber-200 px-1 py-0.2 rounded mr-1">from</span>' : ''}${formatNaira(it.price)}
@@ -71,7 +72,7 @@ window.MealCard = (function () {
     `).join('') : `
       <li class="flex items-center justify-between text-xs py-1">
         <span class="text-stone-800 font-medium flex items-center gap-2 min-w-0">
-          <span class="w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>
+          <span class="w-1.5 h-1.5 rounded-full ${combo.isCampusHack ? 'bg-purple-600' : 'bg-brand-500'} shrink-0"></span>
           <span class="truncate">Full portion serving prepared fresh</span>
         </span>
         <span class="font-extrabold text-stone-600 text-xs shrink-0 ml-2 font-display">${formatNaira(combo.price)}</span>
@@ -89,7 +90,35 @@ window.MealCard = (function () {
         }];
     const isMultiVendor = vendors.length > 1;
 
-    // Render individual vendor tags at the vendor corner
+    // Distinct route stops for Campus Hacks
+    const effectiveStops = (combo.stops && combo.stops.length > 0)
+      ? combo.stops
+      : (function () {
+          const derived = [];
+          const seen = new Set();
+          (combo.items || []).forEach(it => {
+            if (it.spotId && !seen.has(it.spotId)) {
+              seen.add(it.spotId);
+              derived.push({ spotId: it.spotId, spotName: it.spotName || 'Campus Spot' });
+            }
+          });
+          return derived.length > 0 ? derived : vendors;
+        })();
+
+    const campusHackStopsHtml = effectiveStops.map((st, idx) => `
+      ${idx > 0 ? `<span class="text-stone-300 font-black text-xs select-none">➔</span>` : ''}
+      <button 
+        type="button" 
+        class="view-spot-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs transition active:scale-95" 
+        data-spot-id="${st.spotId}" 
+        title="View Stop ${idx + 1}: ${st.spotName}"
+      >
+        <span class="text-purple-600 font-black text-[10px]">#${idx + 1}</span>
+        <span class="truncate max-w-[120px] sm:max-w-[150px]">${st.spotName}</span>
+      </button>
+    `).join('');
+
+    // Render individual vendor tags at the vendor corner (for standard combos)
     const vendorTagsHtml = vendors.map(v => {
       const showPricePill = combo.hasPriceVariation && v.price && v.price !== combo.price;
       return `
@@ -111,16 +140,27 @@ window.MealCard = (function () {
       <div class="flex items-start justify-between gap-3 mb-2.5">
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
-            <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${theme.badgeClass}">
-              <span>${theme.tagIcon}</span>
-              <span>${combo.vibeBadge || 'Rukky Approved ⭐'}</span>
-            </span>
-            ${isMultiVendor ? `
-              <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-900 text-white shadow-xs">
-                <span>🏪</span>
-                <span>${vendors.length} Vendors</span>
+            ${combo.isCampusHack ? `
+              <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-purple-100 text-purple-900 border border-purple-300">
+                <span>🎒</span>
+                <span>${combo.vibeBadge || 'Campus Hack 🎒'}</span>
               </span>
-            ` : ''}
+              <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-900 text-white shadow-xs">
+                <span>🔀</span>
+                <span>${effectiveStops.length} Spots Route</span>
+              </span>
+            ` : `
+              <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${theme.badgeClass}">
+                <span>${theme.tagIcon}</span>
+                <span>${combo.vibeBadge || 'Rukky Approved ⭐'}</span>
+              </span>
+              ${isMultiVendor ? `
+                <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-900 text-white shadow-xs">
+                  <span>🏪</span>
+                  <span>${vendors.length} Vendors</span>
+                </span>
+              ` : ''}
+            `}
           </div>
           <h2 class="text-base sm:text-lg font-extrabold text-stone-900 leading-snug group-hover:text-brand-600 transition-colors">
             ${combo.title}
@@ -136,7 +176,7 @@ window.MealCard = (function () {
       <!-- Items Breakdown (Clean, readable contrast) -->
       <div class="bg-stone-50 rounded-2xl p-3 my-3 border border-stone-200/70">
         <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-black text-stone-500 uppercase tracking-wider">Items in this meal:</span>
+          <span class="text-[10px] font-black text-stone-500 uppercase tracking-wider">${combo.isCampusHack ? 'Items & Canteens:' : 'Items in this meal:'}</span>
           <span class="text-[10px] text-stone-400 font-bold">${hasDetailedItems ? (combo.items.length + ' items') : 'Full plate'}</span>
         </div>
         <ul class="space-y-0.5">
@@ -145,12 +185,12 @@ window.MealCard = (function () {
       </div>
 
       <!-- Rukky's Review Note (Warm, high-contrast) -->
-      <div class="flex items-start gap-2.5 text-xs bg-amber-50/80 p-3 rounded-2xl border border-amber-200/80 mb-3 text-stone-800">
-        <span class="text-base select-none shrink-0 pt-0.5">💬</span>
+      <div class="flex items-start gap-2.5 text-xs ${combo.isCampusHack ? 'bg-purple-50/70 border-purple-200/80' : 'bg-amber-50/80 border-amber-200/80'} p-3 rounded-2xl border mb-3 text-stone-800">
+        <span class="text-base select-none shrink-0 pt-0.5">${combo.isCampusHack ? '🎒' : '💬'}</span>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] font-black text-amber-900 uppercase tracking-wider">Rukky's Verdict</span>
-            <span class="text-[11px] font-black text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md border border-amber-300/60">★ ${combo.rating || '9.5'}</span>
+            <span class="text-[10px] font-black ${combo.isCampusHack ? 'text-purple-900' : 'text-amber-900'} uppercase tracking-wider">Rukky's Verdict</span>
+            <span class="text-[11px] font-black ${combo.isCampusHack ? 'text-purple-900 bg-purple-200/80 border-purple-300/60' : 'text-amber-900 bg-amber-200/80 border-amber-300/60'} px-2 py-0.5 rounded-md border">★ ${combo.rating || '9.8'}</span>
           </div>
           <p class="text-xs text-stone-700 italic leading-relaxed">"${combo.rukkysVerdict || 'A very satisfying campus meal.'}"</p>
         </div>
@@ -159,11 +199,19 @@ window.MealCard = (function () {
       <!-- Where to get & Actions Footer -->
       <div class="pt-2.5 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex flex-wrap items-center gap-1.5 min-w-0 flex-1">
-          <span class="text-[10px] font-black text-stone-400 uppercase tracking-wider shrink-0 mr-0.5 flex items-center gap-1">
-            <span>📍</span>
-            <span>${isMultiVendor ? 'Available at:' : 'Get at:'}</span>
-          </span>
-          ${vendorTagsHtml}
+          ${combo.isCampusHack ? `
+            <span class="text-[10px] font-black text-purple-800 uppercase tracking-wider shrink-0 flex items-center gap-1">
+              <span>🎒</span>
+              <span>Route:</span>
+            </span>
+            ${campusHackStopsHtml}
+          ` : `
+            <span class="text-[10px] font-black text-stone-400 uppercase tracking-wider shrink-0 mr-0.5 flex items-center gap-1">
+              <span>📍</span>
+              <span>${isMultiVendor ? 'Available at:' : 'Get at:'}</span>
+            </span>
+            ${vendorTagsHtml}
+          `}
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0 ml-auto">
@@ -185,7 +233,7 @@ window.MealCard = (function () {
       </div>
     `;
 
-    // Bind Spot Click on every vendor tag
+    // Bind Spot Click on every vendor tag / stop
     card.querySelectorAll('.view-spot-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -202,8 +250,14 @@ window.MealCard = (function () {
       copyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const pricePrefix = combo.hasFromPrice ? 'Starts from ' : '';
-        const vendorNames = vendors.map(v => v.spotName).join(', ');
-        const shareText = `🍽️ Rukky's Pick at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nAvailable at: ${vendorNames}`;
+        let shareText = '';
+        if (combo.isCampusHack) {
+          const stopsText = effectiveStops.map((st, idx) => `  • Stop ${idx + 1}: ${st.spotName}`).join('\n');
+          shareText = `🎒 Rukky's Campus Hack at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nRoute:\n${stopsText}\n"${combo.rukkysVerdict || ''}"`;
+        } else {
+          const vendorNames = vendors.map(v => v.spotName).join(', ');
+          shareText = `🍽️ Rukky's Pick at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nAvailable at: ${vendorNames}`;
+        }
         copyToClipboard(shareText);
         if (typeof onCopySuccess === 'function') {
           onCopySuccess();

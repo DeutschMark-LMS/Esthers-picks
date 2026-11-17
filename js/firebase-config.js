@@ -783,6 +783,13 @@ const dbService = {
       batch.set(ref, s);
     }
 
+    // 3B. Curated Combos & Campus Hacks
+    const combos = this.getCombosSync();
+    for (const c of combos) {
+      const ref = firestoreDb.collection('combos').doc(c.id);
+      batch.set(ref, c);
+    }
+
     // 4. Engine Rules
     const ruleRef = firestoreDb.collection('config').doc('engine_rules');
     batch.set(ruleRef, engineRules);
@@ -890,11 +897,20 @@ const dbService = {
     }
   },
 
+  getCombosSync() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMBOS) || JSON.stringify(DEFAULT_COMBOS));
+    } catch (e) {
+      return DEFAULT_COMBOS;
+    }
+  },
+
   // --- DATA BACKUP & RESTORE ---
   async exportBackup() {
     let items = this.getItemsSync();
     let spots = this.getSpotsSync();
     let specials = this.getSpecialsSync();
+    let combos = this.getCombosSync();
     let engineRules = this.getEngineRulesSync();
 
     if (this.isUsingFirebase()) {
@@ -914,6 +930,11 @@ const dbService = {
           specials = [];
           specSnap.forEach(doc => specials.push({ id: doc.id, ...doc.data() }));
         }
+        const comboSnap = await firestoreDb.collection('combos').get();
+        if (!comboSnap.empty) {
+          combos = [];
+          comboSnap.forEach(doc => combos.push({ id: doc.id, ...doc.data() }));
+        }
         const ruleDoc = await firestoreDb.collection('config').doc('engine_rules').get();
         if (ruleDoc.exists) {
           engineRules = { ...DEFAULT_ENGINE_RULES, ...ruleDoc.data() };
@@ -930,6 +951,7 @@ const dbService = {
       items: items,
       spots: spots,
       specials: specials,
+      combos: combos,
       engineRules: engineRules
     };
   },
@@ -942,18 +964,20 @@ const dbService = {
     const items = Array.isArray(backupData.items) ? backupData.items : null;
     const spots = Array.isArray(backupData.spots) ? backupData.spots : null;
     const specials = Array.isArray(backupData.specials) ? backupData.specials : null;
+    const combos = Array.isArray(backupData.combos) ? backupData.combos : null;
     const engineRules = backupData.engineRules && typeof backupData.engineRules === 'object'
       ? { ...DEFAULT_ENGINE_RULES, ...backupData.engineRules }
       : null;
 
-    if (!items && !spots && !specials && !engineRules) {
-      throw new Error("Backup file contains no recognizable campus data (items, spots, specials, or engine rules).");
+    if (!items && !spots && !specials && !combos && !engineRules) {
+      throw new Error("Backup file contains no recognizable campus data (items, spots, specials, combos, or engine rules).");
     }
 
     // 1. Update localStorage
     if (items) localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items));
     if (spots) localStorage.setItem(STORAGE_KEYS.SPOTS, JSON.stringify(spots));
     if (specials) localStorage.setItem(STORAGE_KEYS.SPECIALS, JSON.stringify(specials));
+    if (combos) localStorage.setItem(STORAGE_KEYS.COMBOS, JSON.stringify(combos));
     if (engineRules) localStorage.setItem(STORAGE_KEYS.ENGINE_RULES, JSON.stringify(engineRules));
 
     // 2. If Firebase is active, batch update Firestore
@@ -976,6 +1000,12 @@ const dbService = {
           specials.forEach(s => {
             const ref = firestoreDb.collection('specials').doc(s.id);
             batch.set(ref, s);
+          });
+        }
+        if (combos) {
+          combos.forEach(c => {
+            const ref = firestoreDb.collection('combos').doc(c.id);
+            batch.set(ref, c);
           });
         }
         if (engineRules) {
