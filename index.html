@@ -85,6 +85,13 @@
     .tap-highlight-transparent {
       -webkit-tap-highlight-color: transparent;
     }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
     .badge-shimmer {
       background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
       background-size: 200% 100%;
@@ -146,17 +153,22 @@
         <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
         
         <!-- Header with Live Pulse -->
-        <div class="flex items-center justify-between mb-3.5 relative z-10">
+        <div class="flex items-center justify-between mb-2 relative z-10">
           <div class="flex items-center space-x-2">
             <span class="relative flex h-2.5 w-2.5">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
             </span>
-            <span class="text-xs font-black uppercase tracking-wider text-amber-300 font-display">Today's Special Food Deals</span>
+            <span class="text-xs font-black uppercase tracking-wider text-amber-300 font-display" id="specialsBoardHeading">Today's Special Food Deals</span>
           </div>
           <span class="text-[11px] bg-white/10 backdrop-blur-md text-amber-200 px-3 py-1 rounded-full font-bold border border-white/10" id="specialsDateBadge">
             Available Today
           </span>
+        </div>
+
+        <!-- Day Selector Pill Bar (Strict Calendar Sync) -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-3 pt-0.5 no-scrollbar relative z-10" id="specialsDayFilterBar">
+          <!-- Rendered dynamically by SpecialsBoard -->
         </div>
 
         <!-- Dynamic Container for Active Daily Special (Properly Spaced) -->
@@ -449,6 +461,54 @@
           </div>
           <button type="button" class="modal-close w-full py-3 bg-stone-900 text-white rounded-xl font-bold text-xs shadow-md hover:bg-stone-800 transition mt-2">
             Got it, thanks!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Campus Lunch Notifications Onboarding (Exclusively for Installed App Users) -->
+    <div id="notificationOnboardModal" class="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+      <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 shadow-2xl relative overflow-hidden">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-3">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl">🔔</span>
+            <div>
+              <h3 class="font-extrabold text-stone-900 text-base">Turn on Campus Lunch Alerts?</h3>
+              <p class="text-[11px] text-stone-500">Daily hunger drop for Landmark students</p>
+            </div>
+          </div>
+          <button class="modal-close p-1.5 rounded-full text-stone-400 hover:bg-stone-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <p class="text-xs text-stone-600 leading-relaxed">
+          Get a quick <strong>12:15 PM alert</strong> when campus cafeterias drop hot meals and today’s daily specials — beat the queues before classes finish!
+        </p>
+
+        <div class="my-4 space-y-2">
+          <div class="p-3 rounded-2xl bg-orange-50 border border-orange-200/80 text-xs text-stone-800 flex items-start gap-2.5">
+            <span class="text-base select-none shrink-0">⏰</span>
+            <div>
+              <p class="font-bold text-orange-950">12:15 PM Lunch Rush Notification</p>
+              <p class="text-stone-600 text-[11px] mt-0.5">Alerts you when Iya Beji and Vicky's Kitchen serve fresh hot food.</p>
+            </div>
+          </div>
+          <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200/80 text-xs text-stone-800 flex items-start gap-2.5">
+            <span class="text-base select-none shrink-0">🌟</span>
+            <div>
+              <p class="font-bold text-amber-950">Today's Special Deals</p>
+              <p class="text-stone-600 text-[11px] mt-0.5">Know which vendor has discounted meal combos for today.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <button id="enableNotificationsBtn" type="button" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 active:scale-98 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-brand-500/20 transition flex items-center justify-center gap-2 tap-highlight-transparent cursor-pointer">
+            <span>Turn on Lunch Alerts 🔔</span>
+          </button>
+          <button id="dismissNotificationsBtn" type="button" class="w-full py-2.5 bg-stone-100 hover:bg-stone-200 active:scale-98 text-stone-600 font-bold text-xs rounded-xl transition tap-highlight-transparent cursor-pointer">
+            Maybe Later
           </button>
         </div>
       </div>

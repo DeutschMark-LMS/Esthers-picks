@@ -197,6 +197,8 @@
           if (window.AppModals) {
             window.AppModals.showToast("Rukky's Picks installed! Check your home screen 🎉", '📲');
           }
+          // Only prompt for device notifications when the person installs the app
+          checkAndPromptInstalledNotifications();
         }
       } catch (err) {
         console.warn('Error during install prompt:', err);
@@ -212,18 +214,92 @@
     }
   }
 
+  // --- NOTIFICATION CONTROLLER (Strictly for Installed App Users) ---
+  function checkAndPromptInstalledNotifications() {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    if (Notification.permission === 'granted' || Notification.permission === 'denied') return;
+    try {
+      if (localStorage.getItem('rukkys_push_prompted') === 'dismissed') return;
+    } catch (e) {}
+
+    setTimeout(() => {
+      if (window.AppModals && window.AppModals.openNotificationPrompt) {
+        window.AppModals.openNotificationPrompt();
+      }
+    }, 1800);
+  }
+
+  async function handleEnableNotifications() {
+    if (!('Notification' in window)) {
+      if (window.AppModals) window.AppModals.showToast("Notifications not supported on this device", "⚠️");
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        try {
+          localStorage.setItem('rukkys_push_prompted', 'granted');
+          localStorage.setItem('rukkys_notifications_enabled', 'true');
+        } catch (e) {}
+
+        if (window.AppModals) {
+          window.AppModals.closeAll();
+          window.AppModals.showToast("Lunch alerts active! You'll be alerted at 12:15 PM 🍲", "🔔");
+        }
+
+        // Trigger welcome test notification through service worker
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification("Rukky's Picks 🍲", {
+              body: "Campus lunch alerts are active! We will notify you at 12:15 PM with today's hot meal deals.",
+              icon: "icons/icon-192.png",
+              badge: "icons/icon-192.png",
+              tag: "welcome-alert",
+              vibrate: [100, 50, 100],
+              data: { url: "./index.html" }
+            });
+          }).catch(err => console.warn('Could not show welcome notification:', err));
+        }
+
+        // Save subscriber record to Firestore
+        if (window.dbService && window.dbService.savePushSubscriber) {
+          try {
+            await window.dbService.savePushSubscriber({
+              id: 'sub-' + Date.now(),
+              grantedAt: new Date().toISOString(),
+              userAgent: navigator.userAgent
+            });
+          } catch (e) {}
+        }
+      } else {
+        if (window.AppModals) {
+          window.AppModals.closeAll();
+          window.AppModals.showToast("Alerts disabled. You can re-enable them in browser settings.", "ℹ️");
+        }
+      }
+    } catch (err) {
+      console.warn('Error requesting notification permission:', err);
+      if (window.AppModals) window.AppModals.closeAll();
+    }
+  }
+
+  function handleDismissNotifications() {
+    try {
+      localStorage.setItem('rukkys_push_prompted', 'dismissed');
+    } catch (e) {}
+    if (window.AppModals) {
+      window.AppModals.closeAll();
+    }
+  }
+
   function initPWA() {
     // Detect if app is running in installed Standalone mode (from home screen)
     const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) 
       || window.navigator.standalone === true 
       || (typeof document !== 'undefined' && document.referrer && document.referrer.includes('android-app://'));
 
-    if (isStandalone) {
-      updateInstallUI('installed');
-      return;
-    }
-
-    // Register Service Worker
+    // Register Service Worker for offline capability & push
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -236,6 +312,20 @@
       });
     }
 
+    // Wire Notification Onboarding buttons
+    const enableNotifBtn = document.getElementById('enableNotificationsBtn');
+    if (enableNotifBtn) enableNotifBtn.addEventListener('click', handleEnableNotifications);
+
+    const dismissNotifBtn = document.getElementById('dismissNotificationsBtn');
+    if (dismissNotifBtn) dismissNotifBtn.addEventListener('click', handleDismissNotifications);
+
+    if (isStandalone) {
+      updateInstallUI('installed');
+      // Person has installed and launched the app! Prompt them for daily lunch alerts
+      checkAndPromptInstalledNotifications();
+      return;
+    }
+
     // Capture install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -244,13 +334,14 @@
       console.log('[PWA] Captured beforeinstallprompt');
     });
 
-    // App installed event
+    // App installed event: Only prompt for notifications once the app is installed
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
       updateInstallUI('installed');
       if (window.AppModals) {
         window.AppModals.showToast("Rukky's Picks added to your home screen! 🎉", '📲');
       }
+      checkAndPromptInstalledNotifications();
     });
 
     // Wire Install App Buttons

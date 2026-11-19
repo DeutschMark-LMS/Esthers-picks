@@ -563,8 +563,16 @@ const DAY_LABELS = {
 };
 
 function getTodayDayKey() {
-  const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-  return days[new Date().getDay()] || 'monday';
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      timeZone: 'Africa/Lagos'
+    });
+    return formatter.format(new Date()).toLowerCase();
+  } catch (e) {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return days[new Date().getDay()] || 'wednesday';
+  }
 }
 
 function formatDayLabel(dayKey) {
@@ -918,6 +926,62 @@ window.deleteSpecial = async (id) => {
     showToast('Daily deal removed', '🗑️');
   }
 };
+
+// --- BROADCAST PUSH NOTIFICATION TO STUDENTS ---
+const broadcastForm = document.getElementById('broadcastPushForm');
+if (broadcastForm) {
+  broadcastForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('pushTitle').value.trim();
+    const body = document.getElementById('pushMessage').value.trim();
+    const url = document.getElementById('pushUrl').value.trim() || './index.html';
+
+    if (!title || !body) return;
+
+    const btn = document.getElementById('sendPushBroadcastBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span>Blasting alert...</span>';
+    }
+
+    try {
+      if ('serviceWorker' in navigator && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(title, {
+            body: body,
+            icon: 'icons/icon-192.png',
+            badge: 'icons/icon-192.png',
+            vibrate: [100, 50, 100],
+            data: { url: url }
+          });
+        }).catch(() => {});
+      }
+
+      if (window.dbService && window.dbService.isUsingFirebase()) {
+        try {
+          await window.firestoreDb.collection('notifications').add({
+            title,
+            body,
+            url,
+            sentAt: new Date().toISOString(),
+            status: 'queued'
+          });
+        } catch (err) {
+          console.warn('Could not write to firestore notifications:', err);
+        }
+      }
+
+      showToast('Lunch Alert broadcasted to all students! 📢', '🚀');
+    } catch (err) {
+      alert('Broadcast failed: ' + err.message);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🚀 Blast Alert to Students</span>';
+      }
+    }
+  });
+}
 
 // --- CAMPUS HACKS (CURATED MULTI-VENDOR COMBOS) ---
 function renderCampusHacksGrid() {

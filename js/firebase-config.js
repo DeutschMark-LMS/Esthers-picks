@@ -707,6 +707,24 @@ const dbService = {
     await this.deleteSuggestion(suggestionId);
   },
 
+  async savePushSubscriber(subscriber) {
+    const payload = {
+      ...subscriber,
+      savedAt: new Date().toISOString()
+    };
+    if (this.isUsingFirebase()) {
+      try {
+        await firestoreDb.collection('subscribers').doc(subscriber.id || 'sub-' + Date.now()).set(payload, { merge: true });
+      } catch (err) {
+        console.warn('Could not save subscriber to Firestore:', err);
+      }
+    } else {
+      const list = JSON.parse(localStorage.getItem('rukkys_subscribers') || '[]');
+      list.push(payload);
+      localStorage.setItem('rukkys_subscribers', JSON.stringify(list));
+    }
+  },
+
   // --- SEED FIRESTORE (1-Click Upload to Cloud) ---
   async seedFirestore() {
     if (!this.isUsingFirebase()) {

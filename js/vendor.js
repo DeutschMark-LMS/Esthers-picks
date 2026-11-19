@@ -97,8 +97,16 @@
   };
 
   function getTodayDayKey() {
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    return days[new Date().getDay()] || 'monday';
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        timeZone: 'Africa/Lagos'
+      });
+      return formatter.format(new Date()).toLowerCase();
+    } catch (e) {
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      return days[new Date().getDay()] || 'wednesday';
+    }
   }
 
   function formatDayLabel(dayKey) {

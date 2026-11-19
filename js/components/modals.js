@@ -7,6 +7,7 @@ window.AppModals = (function () {
   const suggestModal = document.getElementById('suggestModal');
   const hacksModal = document.getElementById('hacksModal');
   const iosInstallModal = document.getElementById('iosInstallModal');
+  const notificationOnboardModal = document.getElementById('notificationOnboardModal');
   const spotsListContent = document.getElementById('spotsListContent');
   const toast = document.getElementById('toast');
   const toastMsg = document.getElementById('toastMsg');
@@ -82,8 +83,12 @@ window.AppModals = (function () {
     if (iosInstallModal) iosInstallModal.classList.remove('hidden');
   }
 
+  function openNotificationPrompt() {
+    if (notificationOnboardModal) notificationOnboardModal.classList.remove('hidden');
+  }
+
   function closeAll() {
-    [spotsModal, suggestModal, hacksModal, iosInstallModal].forEach(m => {
+    [spotsModal, suggestModal, hacksModal, iosInstallModal, notificationOnboardModal].forEach(m => {
       if (m) m.classList.add('hidden');
     });
   }
@@ -95,7 +100,7 @@ window.AppModals = (function () {
     });
 
     // Close on backdrop click
-    [spotsModal, suggestModal, hacksModal, iosInstallModal].forEach(m => {
+    [spotsModal, suggestModal, hacksModal, iosInstallModal, notificationOnboardModal].forEach(m => {
       if (m) {
         m.addEventListener('click', (e) => {
           if (e.target === m) m.classList.add('hidden');
@@ -135,6 +140,7 @@ window.AppModals = (function () {
     openSuggest,
     openTips,
     openInstallGuide,
+    openNotificationPrompt,
     closeAll,
     showToast
   };
