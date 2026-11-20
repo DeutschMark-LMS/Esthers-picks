@@ -153,21 +153,21 @@
         <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
         
         <!-- Header with Live Pulse -->
-        <div class="flex items-center justify-between mb-2 relative z-10">
-          <div class="flex items-center space-x-2">
-            <span class="relative flex h-2.5 w-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap mb-2.5 relative z-10">
+          <div class="flex items-center space-x-2 min-w-0">
+            <span class="relative flex h-2.5 w-2.5 shrink-0">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
             </span>
-            <span class="text-xs font-black uppercase tracking-wider text-amber-300 font-display" id="specialsBoardHeading">Today's Special Food Deals</span>
+            <span class="text-xs font-black uppercase tracking-wider text-amber-300 font-display truncate" id="specialsBoardHeading">Today's Special Food Deals</span>
           </div>
-          <span class="text-[11px] bg-white/10 backdrop-blur-md text-amber-200 px-3 py-1 rounded-full font-bold border border-white/10" id="specialsDateBadge">
+          <span class="text-[11px] bg-white/10 backdrop-blur-md text-amber-200 px-3 py-1 rounded-full font-bold border border-white/10 shrink-0" id="specialsDateBadge">
             Available Today
           </span>
         </div>
 
         <!-- Day Selector Pill Bar (Strict Calendar Sync) -->
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-3 pt-0.5 no-scrollbar relative z-10" id="specialsDayFilterBar">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-3 pt-0.5 pr-2 no-scrollbar relative z-10" id="specialsDayFilterBar">
           <!-- Rendered dynamically by SpecialsBoard -->
         </div>
 
@@ -215,7 +215,7 @@
         </div>
 
         <!-- Quick Budget Presets -->
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 text-xs text-stone-600 no-scrollbar">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 pr-2 text-xs text-stone-600 no-scrollbar">
           <span class="text-[11px] font-black text-stone-400 uppercase tracking-wider shrink-0">Quick:</span>
           <button class="preset-btn px-3 py-1.5 bg-stone-100 hover:bg-orange-100 hover:text-brand-700 text-stone-700 active:scale-95 rounded-full font-bold transition border border-stone-200/80 shrink-0" data-amt="800">₦800</button>
           <button class="preset-btn px-3 py-1.5 bg-stone-100 hover:bg-orange-100 hover:text-brand-700 text-stone-700 active:scale-95 rounded-full font-bold transition border border-stone-200/80 shrink-0" data-amt="1200">₦1.2k</button>
@@ -226,7 +226,7 @@
 
         <!-- Mood & Category Filters -->
         <div class="pt-3 border-t border-stone-100">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between gap-2 mb-2">
             <span class="text-[11px] font-black uppercase tracking-wider text-stone-500">Meal Category</span>
             <button id="surpriseBtn" class="text-xs font-black text-brand-600 hover:text-brand-700 flex items-center space-x-1 active:scale-95 transition tap-highlight-transparent">
               <span>🎲 Surprise Picker</span>
@@ -242,12 +242,12 @@
         </div>
       </section>
 
-      <!-- Results Meta Bar with Clear Color Grounding -->
-      <div class="flex items-center justify-between px-1 text-xs pt-1">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 border border-stone-200 text-stone-800 font-extrabold rounded-xl text-xs shadow-2xs" id="resultsCount">
-          Showing food combinations
+      <!-- Results Meta Bar with Clear Color Grounding & Separation -->
+      <div class="flex items-center justify-between gap-2.5 sm:gap-3 flex-wrap px-1 text-xs pt-1 pb-1">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 border border-stone-200/90 text-stone-800 font-extrabold rounded-xl text-xs shadow-2xs shrink-0" id="resultsCount">
+          Showing 27 food combos
         </span>
-        <div class="inline-flex items-center gap-1.5 bg-white border border-stone-200 px-3 py-1.5 rounded-xl text-xs font-bold text-stone-700 shadow-sm">
+        <div class="inline-flex items-center gap-1.5 bg-white border border-stone-200 px-3 py-1.5 rounded-xl text-xs font-bold text-stone-700 shadow-xs shrink-0">
           <span class="text-stone-400 font-medium">Sort:</span>
           <select id="sortSelect" class="bg-transparent font-extrabold text-stone-900 focus:outline-none cursor-pointer">
             <option value="best">Top Recommended ★</option>

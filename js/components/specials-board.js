@@ -145,12 +145,12 @@ window.SpecialsBoard = (function () {
 
     if (boardHeading) {
       if (currentDayFilter === 'today') {
-        boardHeading.textContent = `${todayLabel}'s Special Food Deals`;
+        boardHeading.textContent = `${todayLabel}'s Deals`;
       } else if (currentDayFilter === 'all') {
-        boardHeading.textContent = 'All Weekly Special Deals';
+        boardHeading.textContent = 'All Campus Deals';
       } else {
         const selLabel = DAY_LABELS[currentDayFilter] || currentDayFilter;
-        boardHeading.textContent = `${selLabel}'s Special Food Deals`;
+        boardHeading.textContent = `${selLabel}'s Deals`;
       }
     }
 
@@ -186,8 +186,8 @@ window.SpecialsBoard = (function () {
     const isFrom = item.pricingType === 'from_price';
 
     if (dateBadge) {
-      const dayText = item.dayOfWeek ? (DAY_LABELS[item.dayOfWeek] || item.dayOfWeek) : todayLabel;
-      dateBadge.textContent = `${dayText} • Deal ${currentIndex + 1} of ${specials.length}`;
+      const dayText = item.dayOfWeek ? (SHORT_DAY_LABELS[item.dayOfWeek] || DAY_LABELS[item.dayOfWeek] || item.dayOfWeek) : (SHORT_DAY_LABELS[todayKey] || todayLabel);
+      dateBadge.textContent = `${dayText} • ${currentIndex + 1}/${specials.length}`;
     }
 
     container.innerHTML = `

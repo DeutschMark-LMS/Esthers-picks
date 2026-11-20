@@ -64,37 +64,42 @@ require('../js/components/specials-board.js');
 
 console.log('Testing SpecialsBoard Calendar & Time logic...');
 
-// Test Data: One Tuesday deal, one Wednesday deal, one Friday deal, one Everyday deal
+const todayKey = window.SpecialsBoard.getTodayDayKey();
+console.log('Detected Today Day Key:', todayKey);
+const expectedDayKey = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  timeZone: 'Africa/Lagos'
+}).format(new Date()).toLowerCase();
+assert.strictEqual(todayKey, expectedDayKey, 'Today must match Lagos timezone weekday');
+
+// Dynamic test data: A deal for another day, a deal for today, and an everyday deal
+const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const otherDayKey = daysOfWeek[(new Date().getDay() + 1) % 7];
+
 const testSpecials = [
-  { id: 'spec-tue', title: 'Tuesday Porridge Yam', dayOfWeek: 'tuesday', price: 1200, vendor: "Vicky's Kitchen", active: true },
-  { id: 'spec-wed', title: 'Wednesday Egusi Special', dayOfWeek: 'wednesday', price: 1600, vendor: 'Iya Beji', active: true },
-  { id: 'spec-fri', title: 'Friday Fried Fish Special', dayOfWeek: 'friday', price: 2000, vendor: 'Main Canteen', active: true },
+  { id: 'spec-other', title: 'Other Day Special Dish', dayOfWeek: otherDayKey, price: 1200, vendor: "Vicky's Kitchen", active: true },
+  { id: 'spec-today', title: "Today's Verified Special", dayOfWeek: todayKey, price: 1600, vendor: 'Iya Beji', active: true },
   { id: 'spec-every', title: 'Everyday Jollof Box', dayOfWeek: 'everyday', price: 1400, vendor: 'Campus Express', active: true }
 ];
 
-// Initialize on current day (Wednesday)
+// Initialize on current day
 window.SpecialsBoard.init(testSpecials, () => {});
 
-// Test 1: Verify current day in Lagos timezone is Wednesday
-const todayKey = window.SpecialsBoard.getTodayDayKey();
-console.log('Detected Today Day Key:', todayKey);
-assert.strictEqual(todayKey, 'wednesday', 'Today must be detected as wednesday in WAT timezone');
-
-// Test 2: In Today view, Tuesday's deal MUST NOT show!
+// Test 2: In Today view, other day's deal MUST NOT show!
 const cardHtml = elements.specialCardContent.innerHTML;
-assert.ok(!cardHtml.includes('Tuesday Porridge Yam'), "CRITICAL: Tuesday's deal MUST NOT appear in Wednesday's Today view!");
-assert.ok(cardHtml.includes('Wednesday Egusi Special'), "Wednesday's deal MUST appear in Today view!");
-console.log('✅ PASS: Wednesday Today view strictly shows Wednesday & Everyday deals, excludes Tuesday!');
+assert.ok(!cardHtml.includes('Other Day Special Dish'), "CRITICAL: Other day's deal MUST NOT appear in Today's view!");
+assert.ok(cardHtml.includes("Today's Verified Special"), "Today's deal MUST appear in Today view!");
+console.log(`✅ PASS: ${todayKey} Today view strictly shows ${todayKey} & Everyday deals, excludes other days!`);
 
-// Test 3: What if there are NO Wednesday deals?
-const noWedSpecials = [
-  { id: 'spec-tue', title: 'Tuesday Porridge Yam', dayOfWeek: 'tuesday', price: 1200, active: true },
-  { id: 'spec-thu', title: 'Thursday Jollof Special', dayOfWeek: 'thursday', price: 1500, active: true }
+// Test 3: What if there are NO deals for today?
+const noTodaySpecials = [
+  { id: 'spec-other-1', title: 'Other Day Special Dish', dayOfWeek: otherDayKey, price: 1200, active: true }
 ];
-window.SpecialsBoard.updateSpecials(noWedSpecials);
+window.SpecialsBoard.updateSpecials(noTodaySpecials);
 const emptyCardHtml = elements.specialCardContent.innerHTML;
-assert.ok(!emptyCardHtml.includes('Tuesday Porridge Yam'), "Tuesday deal must STILL NOT show when Wednesday has no deals!");
-assert.ok(emptyCardHtml.includes('No Wednesday Special Deals Found'), "Must show clean empty notice for Wednesday instead of leaking Tuesday!");
+assert.ok(!emptyCardHtml.includes('Other Day Special Dish'), "Other day deals must not show when today has no deals!");
+const todayCap = todayKey.charAt(0).toUpperCase() + todayKey.slice(1);
+assert.ok(emptyCardHtml.includes(`No ${todayCap} Special Deals Found`), "Must show clean empty notice for today!");
 console.log('✅ PASS: Clean empty day state renders without leaking other days!');
 
 console.log('\n🎉 ALL CALENDAR & TIMING TESTS PASSED!');

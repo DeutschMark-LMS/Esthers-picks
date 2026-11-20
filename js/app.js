@@ -88,14 +88,14 @@
           if (resetBtn) resetBtn.classList.remove('hidden');
         }
       }
-      if (resultsCount) resultsCount.innerText = allCombos.length === 0 ? 'No active menus' : 'No matches found';
+      if (resultsCount) resultsCount.innerText = allCombos.length === 0 ? 'No active menus' : 'No combos found';
       return;
     }
 
     combosList.classList.remove('hidden');
     if (noResultsState) noResultsState.classList.add('hidden');
     if (resultsCount) {
-      resultsCount.innerText = `Showing ${filtered.length} food combination${filtered.length > 1 ? 's' : ''}`;
+      resultsCount.innerText = `Showing ${filtered.length} food combo${filtered.length > 1 ? 's' : ''}`;
     }
 
     filtered.forEach(combo => {
