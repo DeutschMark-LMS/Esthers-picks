@@ -1,14 +1,14 @@
-# Rukky's Picks 🍲
+# Esther's Picks 🍲
 
 > Authentic Campus Food Budget & Meal Combination App for Wellspring University, Benin City, Nigeria.
 
-Rukky's Picks is a fast, responsive, mobile-first web app that helps university students find balanced, delicious meals tailored to their exact daily budget.
+Esther's Picks is a fast, responsive, mobile-first web app that helps university students find balanced, delicious meals tailored to their exact daily budget.
 
 ---
 
 ## ✨ Features
 
-- **Rukky's Engine (Smart Combiner)**: Automatically mixes individual cafeteria food items (mains, proteins, sides, drinks) into authentic Nigerian meals:
+- **Esther's Engine (Smart Combiner)**: Automatically mixes individual cafeteria food items (mains, proteins, sides, drinks) into authentic Nigerian meals:
   - **Core Duos**: Main + Protein (e.g., *Jollof Rice + Fried Chicken*)
   - **Meals with Sides**: Adds sides like *Fried Plantain (Dodo)* or *Steamed Salad*
   - **Meals with Drinks**: Adds chilled *Zobo Drink* or *Cold Malt*
@@ -36,7 +36,7 @@ Rukky's Picks is a fast, responsive, mobile-first web app that helps university 
 ├── clear-cloud.html      # Cloud Firestore wiping and maintenance tool
 ├── js/
 │   ├── firebase-config.js # Database service (Dual-write Firestore & localStorage)
-│   ├── engine.js          # Rukky's Meal Mixer Engine & formation rules
+│   ├── engine.js          # Esther's Meal Mixer Engine & formation rules
 │   ├── app.js             # Student UI controller
 │   ├── admin.js           # Admin UI controller & rules sync
 │   ├── vendor.js          # Vendor portal logic

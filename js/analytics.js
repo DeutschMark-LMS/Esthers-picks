@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Campus Traffic & Advertiser Analytics Service (analytics.js)
+ * Esther's Picks - Campus Traffic & Advertiser Analytics Service (analytics.js)
  * Lightweight, privacy-first analytics engine tracking:
  * - Page views & unique campus student visitors
  * - Times of most peak activity (24-hour campus dining rush distribution)
@@ -677,15 +677,16 @@
 
 ✨ *AVAILABLE PROMOTIONAL SLOTS:*
 1. 🥇 *Top Banner Takeover:* Seen first by every hungry student opening the app.
-2. 🍱 *"Rukky's Pick of the Day" Sponsored Meal:* Guaranteed top ranking in student combos.
+2. 🍱 *"Esther's Pick of the Day" Sponsored Meal:* Guaranteed top ranking in student combos.
 3. 📍 *Featured Vendor / Brand Spotlight:* Direct WhatsApp orders and canteen traffic.
 
 📲 *Book your brand or meal deal slot now:*
-Chat with Rukky's Picks Campus Advertising team!`;
+Chat with Esther's Picks Campus Advertising team!`;
     }
   };
 
   // Expose globally
+  window.EsthersAnalytics = RukkysAnalytics;
   window.RukkysAnalytics = RukkysAnalytics;
 
   // Auto-track pageview on page load

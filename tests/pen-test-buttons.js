@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Dedicated Button Interaction & Penetration Test Harness
+ * Esther's Picks - Dedicated Button Interaction & Penetration Test Harness
  * Exercises all buttons across index.html, admin.html, and vendor.html.
  * Simulates real user interactions, rapid clicking, and edge case inputs.
  */

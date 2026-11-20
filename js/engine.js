@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Meal Mixer Engine (engine.js)
+ * Esther's Picks - Meal Mixer Engine (engine.js)
  * Automatically takes individual food items and prices from campus canteens
  * and combines them into balanced, realistic, authentic Nigerian campus meals.
  */
@@ -39,7 +39,7 @@
     if (m.includes('noodles')) return 'Quick Energy ⚡';
     if (m.includes('yam') || m.includes('egusi') || m.includes('soup')) return 'Full Stomach 🍛';
     if (category === 'night') return 'Night Snack 🌙';
-    return 'Rukky Approved ⭐';
+    return 'Esther Approved ⭐';
   }
 
   function generateVerdict(main, protein, side, drink, spot, totalPrice) {
@@ -637,5 +637,6 @@
   };
 
   // Expose globally
+  window.EsthersEngine = RukkysEngine;
   window.RukkysEngine = RukkysEngine;
 })();

@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Component: AppModals
+ * Esther's Picks - Component: AppModals
  * Handles Spots directory modal, Suggestion submission modal, Campus Tips modal, and Toasts.
  */
 window.AppModals = (function () {

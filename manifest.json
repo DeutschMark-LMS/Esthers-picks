@@ -1,8 +1,8 @@
 {
-  "id": "rukkys-picks-app",
-  "name": "Rukky's Picks | Campus Food Finder",
-  "short_name": "Rukky's Picks",
-  "description": "Discover delicious, budget-friendly meal combos across campus canteens and food spots.",
+  "id": "esthers-picks-app",
+  "name": "Esther's Picks | Campus Food Finder",
+  "short_name": "Esther's Picks",
+  "description": "Discover delicious, budget-friendly meal combos across campus canteens and food spots with Esther's Picks.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -61,7 +61,7 @@
     {
       "name": "Suggest a Combo",
       "short_name": "Suggest",
-      "description": "Send your favorite campus meal to Rukky",
+      "description": "Send your favorite campus meal to Esther",
       "url": "./index.html#suggest",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }

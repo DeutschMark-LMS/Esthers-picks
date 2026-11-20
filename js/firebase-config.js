@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Firebase & Unified Database Service
+ * Esther's Picks - Firebase & Unified Database Service
  * Handles Firestore real-time sync, Firebase Auth, and local-storage fallback for demo/offline use.
  */
 
@@ -109,7 +109,7 @@ function initFirebase() {
     isFirebaseActive = false;
     firestoreDb = null;
     firebaseAuth = null;
-    console.info("Rukky's Picks: Running in Local Storage Mode (explicitly set by admin).");
+    console.info("Esther's Picks: Running in Local Storage Mode (explicitly set by admin).");
     return false;
   }
 
@@ -130,7 +130,7 @@ function initFirebase() {
     isFirebaseActive = false;
     firestoreDb = null;
     firebaseAuth = null;
-    console.info("Rukky's Picks: Running in pure Local Storage Mode.");
+    console.info("Esther's Picks: Running in pure Local Storage Mode.");
     return false;
   }
 
@@ -144,15 +144,15 @@ function initFirebase() {
       firestoreDb = firebase.firestore();
       firebaseAuth = firebase.auth();
       isFirebaseActive = true;
-      console.log("Rukky's Picks: Connected to live Firebase Firestore! 🚀 Project:", config.projectId);
+      console.log("Esther's Picks: Connected to live Firebase Firestore! 🚀 Project:", config.projectId);
       return true;
     } else {
-      console.warn("Rukky's Picks: Firebase SDK scripts not loaded yet. Running in Local Mode.");
+      console.warn("Esther's Picks: Firebase SDK scripts not loaded yet. Running in Local Mode.");
       isFirebaseActive = false;
       return false;
     }
   } catch (err) {
-    console.error("Rukky's Picks: Failed to initialize Firebase:", err);
+    console.error("Esther's Picks: Failed to initialize Firebase:", err);
     isFirebaseActive = false;
     return false;
   }
@@ -262,7 +262,7 @@ const dbService = {
     firebaseAuth = null;
   },
 
-  // --- FOOD ITEMS & PRICES (Individual offerings mixed by Rukky's Engine) ---
+  // --- FOOD ITEMS & PRICES (Individual offerings mixed by Esther's Engine) ---
   listenItems(callback) {
     if (this.isUsingFirebase()) {
       return firestoreDb.collection('items').onSnapshot(snapshot => {
@@ -762,7 +762,7 @@ const dbService = {
     batch.set(ruleRef, DEFAULT_ENGINE_RULES);
 
     await batch.commit();
-    console.log("Rukky's Picks: Seed data successfully written to Firestore! 🎉");
+    console.log("Esther's Picks: Seed data successfully written to Firestore! 🎉");
   },
 
   // --- 1-CLICK PUSH ALL CURRENT LOCAL MEALS & RULES TO CLOUD FIRESTORE ---
@@ -813,7 +813,7 @@ const dbService = {
     batch.set(ruleRef, engineRules);
 
     await batch.commit();
-    console.log(`Rukky's Picks: Successfully pushed ${items.length} items, ${spots.length} spots, and rules to Cloud Firestore! ☁️`);
+    console.log(`Esther's Picks: Successfully pushed ${items.length} items, ${spots.length} spots, and rules to Cloud Firestore! ☁️`);
 
     return {
       itemsCount: items.length,
@@ -963,7 +963,7 @@ const dbService = {
     }
 
     return {
-      appName: "Rukky's Picks",
+      appName: "Esther's Picks",
       exportVersion: "1.0",
       exportedAt: new Date().toISOString(),
       items: items,
@@ -1240,7 +1240,7 @@ const authService = {
       const user = {
         uid: 'admin-portal-user',
         email: 'admin@wellspring.edu.ng',
-        name: 'Rukky Admin',
+        name: 'Esther Admin',
         role: 'admin',
         isDemo: true,
         authenticatedAt: new Date().toISOString()
@@ -1261,7 +1261,7 @@ const authService = {
     } else {
       // Demo / Local login
       if (email && password) {
-        const user = { uid: 'demo-admin-1', email: email, isDemo: true, name: "Rukky (Admin Demo)" };
+        const user = { uid: 'demo-admin-1', email: email, isDemo: true, name: "Esther (Admin Demo)" };
         localStorage.setItem(STORAGE_KEYS.DEMO_AUTH, JSON.stringify(user));
         notifyAdminAuth(user);
         return user;
@@ -1271,7 +1271,7 @@ const authService = {
   },
 
   demoLogin() {
-    const user = { uid: 'demo-admin-1', email: 'rukky@wellspring.edu.ng', isDemo: true, name: "Rukky (Demo Admin)" };
+    const user = { uid: 'demo-admin-1', email: 'esther@wellspring.edu.ng', isDemo: true, name: "Esther (Demo Admin)" };
     localStorage.setItem(STORAGE_KEYS.DEMO_AUTH, JSON.stringify(user));
     notifyAdminAuth(user);
     return user;
@@ -1407,6 +1407,8 @@ const authService = {
 
 // Expose globally
 window.dbService = dbService;
+window.EsthersDb = dbService;
+window.RukkysDb = dbService;
 window.authService = authService;
 window.DEFAULT_SPOTS = DEFAULT_SPOTS;
 window.DEFAULT_SPECIALS = DEFAULT_SPECIALS;

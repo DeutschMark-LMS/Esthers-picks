@@ -1,7 +1,7 @@
 /**
- * Rukky's Picks - Student Client App Controller (app.js)
+ * Esther's Picks - Student Client App Controller (app.js)
  * High performance, zero framework overhead, reactive client for Wellspring University students.
- * Powered by Rukky's Engine: dynamically mixes individual canteen food items into balanced meals.
+ * Powered by Esther's Engine: dynamically mixes individual canteen food items into balanced meals.
  */
 (function () {
   'use strict';
@@ -30,8 +30,9 @@
 
   // --- REFRESH COMBOS VIA RUKKY'S ENGINE & CURATED CAMPUS HACKS ---
   function refreshEngineCombos() {
-    const generated = window.RukkysEngine
-      ? window.RukkysEngine.generateCombos(allItems, allSpots)
+    const engine = window.EsthersEngine || window.RukkysEngine;
+    const generated = engine
+      ? engine.generateCombos(allItems, allSpots)
       : (window.DEFAULT_COMBOS || []);
 
     // Merge manual curated Campus Hacks with generated combos
@@ -144,7 +145,7 @@
       spotId: "user-spot",
       spotName: data.suggestedSpot,
       items: [{ name: data.suggestedItems, price: data.suggestedPrice }],
-      rukkysVerdict: `Suggested by ${data.suggesterName} from campus! Under review by Rukky.`,
+      rukkysVerdict: `Suggested by ${data.suggesterName} from campus! Under review by Esther.`,
       rating: "New",
       vibeBadge: "Student Suggestion ⭐"
     };
@@ -195,7 +196,7 @@
             window.RukkysAnalytics.trackEvent('pwa_install_accepted', { label: 'User installed PWA' });
           }
           if (window.AppModals) {
-            window.AppModals.showToast("Rukky's Picks installed! Check your home screen 🎉", '📲');
+            window.AppModals.showToast("Esther's Picks installed! Check your home screen 🎉", '📲');
           }
           // Only prompt for device notifications when the person installs the app
           checkAndPromptInstalledNotifications();
@@ -209,7 +210,7 @@
       if (window.AppModals && window.AppModals.openInstallGuide) {
         window.AppModals.openInstallGuide();
       } else {
-        alert("To install Rukky's Picks, tap your browser's share or menu icon and select 'Add to Home Screen' 📲");
+        alert("To install Esther's Picks, tap your browser's share or menu icon and select 'Add to Home Screen' 📲");
       }
     }
   }
@@ -251,7 +252,7 @@
         // Trigger welcome test notification through service worker
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification("Rukky's Picks 🍲", {
+            reg.showNotification("Esther's Picks 🍲", {
               body: "Campus lunch alerts are active! We will notify you at 12:15 PM with today's hot meal deals.",
               icon: "icons/icon-192.png",
               badge: "icons/icon-192.png",
@@ -339,7 +340,7 @@
       deferredInstallPrompt = null;
       updateInstallUI('installed');
       if (window.AppModals) {
-        window.AppModals.showToast("Rukky's Picks added to your home screen! 🎉", '📲');
+        window.AppModals.showToast("Esther's Picks added to your home screen! 🎉", '📲');
       }
       checkAndPromptInstalledNotifications();
     });
@@ -477,7 +478,7 @@
         if (allPill) allPill.className = "filter-pill active px-3.5 py-1.5 rounded-full text-xs font-black bg-stone-900 text-white border border-stone-900 shadow-sm transition tap-highlight-transparent";
 
         renderCombos();
-        window.AppModals.showToast(`Rukky picked: ${randomPick.title.split('+')[0]}!`, '🎲');
+        window.AppModals.showToast(`Esther picked: ${randomPick.title.split('+')[0]}!`, '🎲');
       });
     }
 

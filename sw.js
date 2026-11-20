@@ -1,9 +1,9 @@
 /**
- * Rukky's Picks - Service Worker (sw.js)
+ * Esther's Picks - Service Worker (sw.js)
  * High-performance offline caching and app shell manager.
  */
 
-const CACHE_NAME = 'rukkys-picks-v1.0.0';
+const CACHE_NAME = 'esthers-picks-v1.0.1';
 
 const PRECACHE_ASSETS = [
   './',
@@ -112,7 +112,7 @@ self.addEventListener('fetch', (event) => {
 // Push Notifications: Receive Web Push and display OS notification
 self.addEventListener('push', (event) => {
   let data = {
-    title: "Rukky's Picks 🍲",
+    title: "Esther's Picks 🍲",
     body: "Fresh campus meals and deals are ready!",
     url: './index.html',
     icon: 'icons/icon-192.png'

@@ -1,8 +1,8 @@
 /**
- * Rukky's Picks - Lightweight Mobile Vendor Controller (vendor.js)
+ * Esther's Picks - Lightweight Mobile Vendor Controller (vendor.js)
  * Mobile-first interface for canteen vendors:
  * 1. Add / manage individual food items & prices (e.g. Boiled Egg ₦500, Jollof Rice ₦800)
- * 2. Real-time feedback showing how Rukky's Engine mixes them into student combos
+ * 2. Real-time feedback showing how Esther's Engine mixes them into student combos
  * 3. Add / manage today's special menu (curated daily combos + prices)
  * No email or password friction required.
  */
@@ -198,9 +198,10 @@
     const spotItems = allItems.filter(it => it.spotId === spot.id || (it.spotName && spot.name && it.spotName.toLowerCase() === spot.name.toLowerCase()));
     if (offersCountBadge) offersCountBadge.textContent = spotItems.length;
 
-    // Update Rukky's Engine live combo calculation
-    if (engineCombosCount && window.RukkysEngine) {
-      const generatedCombos = window.RukkysEngine.mixForVendor(spot.id, allItems, allSpots);
+    // Update Esther's Engine live combo calculation
+    const engine = window.EsthersEngine || window.RukkysEngine;
+    if (engineCombosCount && engine) {
+      const generatedCombos = engine.mixForVendor(spot.id, allItems, allSpots);
       engineCombosCount.textContent = `Mixing your items into ${generatedCombos.length} student combo${generatedCombos.length !== 1 ? 's' : ''}`;
     }
 

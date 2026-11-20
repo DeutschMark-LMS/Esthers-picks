@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Admin Dashboard | Rukky's Picks</title>
+  <title>Admin Dashboard | Esther's Picks</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -78,7 +78,7 @@
       <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-amber-500 mx-auto flex items-center justify-center text-white shadow-lg shadow-brand-500/30 mb-3 text-2xl">
         🛡️
       </div>
-      <h2 class="text-xl sm:text-2xl font-extrabold text-stone-900 font-display">Rukky’s Admin Portal</h2>
+      <h2 class="text-xl sm:text-2xl font-extrabold text-stone-900 font-display">Esther’s Admin Portal</h2>
       <p class="text-xs text-stone-500 mt-1 mb-5">Enter your passcode to manage campus food items, canteens, and engine rules</p>
 
       <form id="passcodeForm" class="space-y-4 text-left">
@@ -139,11 +139,11 @@
         <!-- Logo & Admin Title -->
         <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
           <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white font-extrabold text-sm sm:text-base shadow shrink-0">
-            R
+            E
           </div>
           <div class="min-w-0">
             <div class="flex items-center space-x-1.5">
-              <span class="font-extrabold text-sm sm:text-base tracking-tight font-display truncate">Rukky’s Admin</span>
+              <span class="font-extrabold text-sm sm:text-base tracking-tight font-display truncate">Esther’s Admin</span>
               <span class="text-[9px] sm:text-[10px] bg-brand-500/20 text-brand-300 font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">HQ</span>
             </div>
             <p class="text-[10px] sm:text-[11px] text-stone-400 truncate" id="userEmailBadge">Admin (Unlocked 🛡️)</p>
@@ -234,7 +234,7 @@
         </button>
         <button class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-stone-200 text-stone-700 hover:bg-stone-300 transition shrink-0 whitespace-nowrap flex items-center space-x-1.5 active:scale-95 min-h-[40px]" data-tab="combosTab">
           <span>🤖</span>
-          <span>Rukky's Engine Combos</span>
+          <span>Esther's Engine Combos</span>
           <span id="tabCombosPill" class="ml-1 px-1.5 py-0.5 bg-brand-500 text-white text-[10px] rounded-full">0</span>
         </button>
         <button class="tab-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-stone-200 text-stone-700 hover:bg-stone-300 transition shrink-0 whitespace-nowrap flex items-center space-x-1.5 active:scale-95 min-h-[40px]" data-tab="specialsTab">
@@ -264,7 +264,7 @@
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div>
             <h3 class="text-base sm:text-lg font-bold text-stone-900 font-display">Campus Food Items & Prices</h3>
-            <p class="text-xs text-stone-500">Individual food items entered per canteen. Rukky's Engine automatically mixes them!</p>
+            <p class="text-xs text-stone-500">Individual food items entered per canteen. Esther's Engine automatically mixes them!</p>
           </div>
           <div class="flex items-center gap-2">
             <button id="syncItemsToCloudBtn" type="button" class="w-full sm:w-auto px-3.5 py-3 sm:py-2.5 bg-stone-900 hover:bg-stone-800 active:scale-98 text-white text-xs font-bold rounded-xl shadow transition flex items-center justify-center space-x-1.5 shrink-0" title="Upload all current food items to Cloud Firestore">
@@ -355,7 +355,7 @@
             </div>
             <div>
               <h4 class="font-bold text-stone-900 text-sm font-display flex items-center gap-1.5">
-                <span>Rukky's Engine Live Combiner</span>
+                <span>Esther's Engine Live Combiner</span>
                 <span class="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded-full uppercase">Active</span>
               </h4>
               <p class="text-xs text-stone-600 mt-0.5" id="engineOverviewText">
@@ -380,8 +380,8 @@
             <div class="flex items-center space-x-2.5">
               <span class="text-xl">⚙️</span>
               <div>
-                <h4 class="font-bold text-stone-900 text-sm font-display">Rukky's Engine Rulebook & Parameters</h4>
-                <p class="text-[11px] text-stone-500">Fine-tune how Rukky pairs campus food items, caps student prices, and prevents weird combos.</p>
+                <h4 class="font-bold text-stone-900 text-sm font-display">Esther's Engine Rulebook & Parameters</h4>
+                <p class="text-[11px] text-stone-500">Fine-tune how Esther pairs campus food items, caps student prices, and prevents weird combos.</p>
               </div>
             </div>
             <span class="text-[10px] font-extrabold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full uppercase tracking-wider">Live Logic</span>
@@ -490,7 +490,7 @@
                 <span class="text-[10px] text-stone-400">One pairing per line (e.g. Item A + Item B)</span>
               </div>
               <textarea id="ruleBlacklist" rows="3" placeholder="Fruit Salad + Peppered Goat Meat&#10;Fruit Salad + Fried Titus Fish&#10;Fruit Salad + Soft Beef Suya" class="w-full p-3 rounded-xl bg-stone-50 border border-stone-200 font-mono text-[11px] leading-relaxed focus:outline-none focus:border-brand-500"></textarea>
-              <p class="text-[10px] text-stone-500 mt-1">Rukky's Engine will never pair items together if they match any rule above.</p>
+              <p class="text-[10px] text-stone-500 mt-1">Esther's Engine will never pair items together if they match any rule above.</p>
             </div>
 
             <!-- Action Buttons -->
@@ -579,7 +579,7 @@
                   <th class="py-3 px-4">Price (₦)</th>
                   <th class="py-3 px-4">Category</th>
                   <th class="py-3 px-4">Items Breakdown</th>
-                  <th class="py-3 px-4">Rukky's Score</th>
+                  <th class="py-3 px-4">Esther's Score</th>
                 </tr>
               </thead>
               <tbody id="combosTableBody" class="divide-y divide-stone-100 font-medium">
@@ -891,7 +891,7 @@
       <div class="flex items-center justify-between pb-3 border-b border-stone-100">
         <div>
           <h3 class="font-bold text-stone-900 text-base sm:text-lg font-display" id="itemModalTitle">Add Food Item & Price</h3>
-          <p class="text-[11px] text-stone-500">Add individual food item. Rukky's Engine mixes it automatically!</p>
+          <p class="text-[11px] text-stone-500">Add individual food item. Esther's Engine mixes it automatically!</p>
         </div>
         <button class="modal-close p-2 rounded-full text-stone-400 hover:bg-stone-100 active:scale-95">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -1028,7 +1028,7 @@
         </div>
 
         <div>
-          <label class="block font-bold text-stone-700 mb-1">Rukky’s Review Pitch</label>
+          <label class="block font-bold text-stone-700 mb-1">Esther’s Review Pitch</label>
           <textarea id="specialPitch" rows="2" placeholder="Explain why students should buy this today..." class="w-full p-3 rounded-xl bg-stone-50 border border-stone-200 font-medium focus:outline-none focus:border-amber-500"></textarea>
         </div>
 
@@ -1144,7 +1144,7 @@
         </div>
 
         <div>
-          <label class="block font-bold text-stone-700 mb-1">Rukky's Review Pitch / Why You Recommend This *</label>
+          <label class="block font-bold text-stone-700 mb-1">Esther's Review Pitch / Why You Recommend This *</label>
           <textarea id="hackVerdict" rows="3" required placeholder="e.g. I tried this yesterday! The beans at Iya Beji are soft and sweet, but Vicky's fried fish is 10x crispier. Buy both together for the ultimate combo." class="w-full p-3 rounded-xl bg-stone-50 border border-stone-200 font-medium focus:outline-none focus:border-purple-500"></textarea>
         </div>
 
@@ -1161,7 +1161,7 @@
     <span id="toastMsg">Action successful</span>
   </div>
 
-  <!-- Load Database Service, Rukky's Engine & Admin Logic -->
+  <!-- Load Database Service, Esther's Engine & Admin Logic -->
   <script src="js/firebase-config.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/admin.js"></script>

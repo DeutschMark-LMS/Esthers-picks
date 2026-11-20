@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Component: MealCard
+ * Esther's Picks - Component: MealCard
  * Renders individual meal combination cards with item breakdowns, pricing, and action triggers.
  * High-contrast color hierarchy for instant readability in bright campus conditions.
  */
@@ -164,7 +164,7 @@ window.MealCard = (function () {
             ` : `
               <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${theme.badgeClass}">
                 <span>${theme.tagIcon}</span>
-                <span>${combo.vibeBadge || 'Rukky Approved ⭐'}</span>
+                <span>${combo.vibeBadge || 'Esther Approved ⭐'}</span>
               </span>
               ${isMultiVendor ? `
                 <span class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-900 text-white shadow-xs">
@@ -196,15 +196,15 @@ window.MealCard = (function () {
         </ul>
       </div>
 
-      <!-- Rukky's Review Note (Warm, high-contrast) -->
+      <!-- Esther's Review Note (Warm, high-contrast) -->
       <div class="flex items-start gap-2.5 text-xs ${combo.isCampusHack ? 'bg-purple-50/70 border-purple-200/80' : 'bg-amber-50/80 border-amber-200/80'} p-3 rounded-2xl border mb-3 text-stone-800">
         <span class="text-base select-none shrink-0 pt-0.5">${combo.isCampusHack ? '🎒' : '💬'}</span>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] font-black ${combo.isCampusHack ? 'text-purple-900' : 'text-amber-900'} uppercase tracking-wider">Rukky's Verdict</span>
+            <span class="text-[10px] font-black ${combo.isCampusHack ? 'text-purple-900' : 'text-amber-900'} uppercase tracking-wider">Esther's Verdict</span>
             <span class="text-[11px] font-black ${combo.isCampusHack ? 'text-purple-900 bg-purple-200/80 border-purple-300/60' : 'text-amber-900 bg-amber-200/80 border-amber-300/60'} px-2 py-0.5 rounded-md border">★ ${combo.rating || '9.8'}</span>
           </div>
-          <p class="text-xs text-stone-700 italic leading-relaxed">"${combo.rukkysVerdict || 'A very satisfying campus meal.'}"</p>
+          <p class="text-xs text-stone-700 italic leading-relaxed">"${combo.esthersVerdict || combo.rukkysVerdict || 'A very satisfying campus meal.'}"</p>
         </div>
       </div>
 
@@ -265,10 +265,10 @@ window.MealCard = (function () {
         let shareText = '';
         if (combo.isCampusHack) {
           const stopsText = effectiveStops.map((st, idx) => `  • Stop ${idx + 1}: ${st.spotName}`).join('\n');
-          shareText = `🎒 Rukky's Campus Hack at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nRoute:\n${stopsText}\n"${combo.rukkysVerdict || ''}"`;
+          shareText = `🎒 Esther's Campus Hack at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nRoute:\n${stopsText}\n"${combo.esthersVerdict || combo.rukkysVerdict || ''}"`;
         } else {
           const vendorNames = vendors.map(v => v.spotName).join(', ');
-          shareText = `🍽️ Rukky's Pick at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nAvailable at: ${vendorNames}`;
+          shareText = `🍽️ Esther's Pick at Wellspring:\n${combo.title}\nPrice: ${pricePrefix}${formatNaira(combo.price)}\nAvailable at: ${vendorNames}`;
         }
         copyToClipboard(shareText);
         if (typeof onCopySuccess === 'function') {

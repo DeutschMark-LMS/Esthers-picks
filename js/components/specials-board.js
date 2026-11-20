@@ -1,5 +1,5 @@
 /**
- * Rukky's Picks - Component: SpecialsBoard
+ * Esther's Picks - Component: SpecialsBoard
  * Manages the "Today's Campus Deals" banner, calendar day filtering, carousel rotation, and quick budget locking.
  * Enforces strict campus timezone (WAT / Africa/Lagos) so that meals from other days do not leak into today's view.
  */
